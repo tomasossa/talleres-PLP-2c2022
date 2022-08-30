@@ -63,7 +63,7 @@ podar long prof m = podarHasta m long prof long
 --Es decir, el valor asociado a la clave i es un diccionario con las claves de 1 en adelante, donde el valor de la clave j es i*j.
 tablas :: Integer -> MultiDict Integer Integer
 tablas n = Multi n (tablaDeMultiplicar n) (tablas (n + 1))
-  where tablaDeMultiplicar n = foldr (\dict rec -> dict rec) Nil [Entry m (m*n) | m <- [1..]]
+  where tablaDeMultiplicar n = foldr ($) Nil [Entry m (m*n) | m <- [1..]]
 
 serialize :: (Show a, Show b) => MultiDict a b -> String
 serialize = foldMD "[ ]" serializeEntry serializeMulti
