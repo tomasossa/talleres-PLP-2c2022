@@ -66,7 +66,9 @@ tablas n = Multi n (tablaDeMultiplicar n) (tablas (n + 1))
   where tablaDeMultiplicar n = foldr (\dict rec -> dict rec) Nil [Entry m (m*n) | m <- [1..]]
 
 serialize :: (Show a, Show b) => MultiDict a b -> String
-serialize = undefined
+serialize = foldMD "[ ]" serializeEntry serializeMulti
+  where serializeEntry = (\k v rec -> "[" ++ show k ++ ": " ++ show v ++ ", " ++ rec ++ "]")
+        serializeMulti = (\k rec1 rec2 -> "[" ++ show k ++ ": " ++ rec1 ++ ", " ++ rec2 ++ "]")
 
 mapMD :: (a->c) -> (b->d) -> MultiDict a b -> MultiDict c d
 mapMD = undefined
