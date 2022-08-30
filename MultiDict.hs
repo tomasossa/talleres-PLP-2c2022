@@ -82,8 +82,8 @@ enLexicon validas = filtrarClavesValidas . converitClavesAMinusculas
   where converitClavesAMinusculas = mapMD (map toLower) id
         filtrarClavesValidas = filterMD (flip elem validas)
 
-cadena :: Eq a => b ->  [a] -> MultiDict a b
-cadena = undefined
+cadena :: Eq a => b -> [a] -> MultiDict a b
+cadena v = foldr (\x rec -> if isNil rec then Entry x v Nil else Multi x rec Nil) Nil
 
 --Agrega a un multidiccionario una cadena de claves [c1, ..., cn], una por cada nivel,
 --donde el valor asociado a cada clave es un multidiccionario con la clave siguiente, y así sucesivamente hasta
