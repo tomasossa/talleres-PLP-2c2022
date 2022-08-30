@@ -41,11 +41,11 @@ recMD casoNil casoEntry casoMulti dict = case dict of
   where rec = recMD casoNil casoEntry casoMulti
 
 profundidad :: MultiDict a b -> Integer
-profundidad = undefined
+profundidad = foldMD 0 (\_ _ _ -> 1) (\_ rec1 rec2 -> 1 + max rec1 rec2)
 
 --Cantidad total de claves definidas en todos los niveles.
 tamaño :: MultiDict a b -> Integer
-tamaño = undefined
+tamaño = foldMD 0 (\_ _ rec -> rec + 1) (\_ rec1 rec2 -> 1 + rec1 + rec2)
 
 podarHasta = foldMD
           (\_ _ _ -> Nil)
