@@ -62,7 +62,8 @@ podar long prof m = podarHasta m long prof long
 --Dado un entero n, define las claves de n en adelante, cada una con su tabla de multiplicar.
 --Es decir, el valor asociado a la clave i es un diccionario con las claves de 1 en adelante, donde el valor de la clave j es i*j.
 tablas :: Integer -> MultiDict Integer Integer
-tablas = undefined
+tablas n = Multi n (tablaDeMultiplicar n) (tablas (n + 1))
+  where tablaDeMultiplicar n = foldr (\dict rec -> dict rec) Nil [Entry m (m*n) | m <- [1..]]
 
 serialize :: (Show a, Show b) => MultiDict a b -> String
 serialize = undefined
