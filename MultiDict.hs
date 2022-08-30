@@ -71,14 +71,16 @@ serialize = foldMD "[ ]" serializeEntry serializeMulti
         serializeMulti = (\k rec1 rec2 -> "[" ++ show k ++ ": " ++ rec1 ++ ", " ++ rec2 ++ "]")
 
 mapMD :: (a->c) -> (b->d) -> MultiDict a b -> MultiDict c d
-mapMD = undefined
+mapMD f g = foldMD Nil (\k v rec -> Entry (f k) (g v) rec) (\k rec1 rec2 -> Multi (f k) rec1 rec2)
 
 --Filtra recursivamente mirando las claves de los subdiccionarios.
 filterMD :: (a->Bool) -> MultiDict a b -> MultiDict a b
-filterMD = undefined
+filterMD p = foldMD Nil (\k v rec -> if p k then Entry k v rec else rec) (\k rec1 rec2 -> if p k then Multi k rec1 rec2 else rec2)
 
 enLexicon :: [String] -> MultiDict String b -> MultiDict String b
-enLexicon = undefined
+enLexicon validas = filtrarClavesValidas . converitClavesAMinusculas
+  where converitClavesAMinusculas = mapMD (map toLower) id
+        filtrarClavesValidas = filterMD (flip elem validas)
 
 cadena :: Eq a => b ->  [a] -> MultiDict a b
 cadena = undefined
