@@ -1,9 +1,14 @@
+
 import Data.Maybe
 import Test.HUnit
 import MultiDict
 
 
+
+
 --Multidiccionarios de prueba
+
+
 
 infinito :: MultiDict Integer Integer
 infinito = tablas 1
@@ -13,6 +18,7 @@ cuatroNiveles = Entry 1 'a' (Multi 2 (Entry 2 'b' (Multi 3 (Entry 3 'c' (Multi 4
 
 superinfinito :: MultiDict Integer Integer
 superinfinito = Multi 1 (Entry 1 1 superinfinito) (mapMD (+1) (*2) superinfinito)
+
 
 datosLlamada :: MultiDict String String --Cualquier parecido con los datos de una llamada que hizo un cliente a un banco son absolutamente...
 datosLlamada = 
@@ -132,25 +138,61 @@ tests2 = test [
   ]
 tests3 = test [
    profundidad cuatroNiveles ~=? 4,
-   profundidad datosLlamada ~=? 2
+   profundidad datosLlamada ~=? 2,
+   profundidad Nil ~=? 0,
+   profundidad (Entry 'a' 1 Nil ) ~=? 1,
+   profundidad (Entry 'a' 1 $ Entry 'b' 1 Nil)  ~=? 1,
+   profundidad (Entry 'a' 1 $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)   ~=? 2,
+   profundidad ( Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil)  $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)   ~=? 2,
+   profundidad ( Multi 'b' (Multi 'a' (Entry 'v' 42 $ Entry 'h' 2 Nil) $ Entry 'd' 4 Nil)  Nil)  ~=? 3
   ]
 tests4 = test [
    tamaño cuatroNiveles ~=? 7,
    (tamaño $ podar 5 3 datosLlamada) ~=? 10,
-   tamaño datosLlamada ~=? 89
+   tamaño datosLlamada ~=? 89,
+   tamaño Nil ~=? 0,
+   tamaño (Entry 'a' 1 Nil ) ~=? 1,
+   tamaño (Entry 'a' 1 $ Entry 'b' 1 Nil)  ~=? 2,
+   tamaño (Entry 'a' 1 $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)   ~=? 4,
+   tamaño ( Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil)  $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)   ~=? 6,
+   tamaño ( Multi 'b' (Multi 'a' (Entry 'v' 42 $ Entry 'h' 2 Nil) $ Entry 'd' 4 Nil)  Nil)  ~=? 5
+
   ]
 tests5 = test [
    (podar 5 3 $ tablas 2) ~=? (podar 5 2 $ tablas 2),
    (profundidad $ podar 20 20 infinito) ~=? 2,
-   (tamaño $ podar 5 3 $ tablas 2) ~=? 30
-  ]
+   (tamaño $ podar 5 3 $ tablas 2) ~=? 30,
+   (tamaño $ podar 0 0 $ tablas 3) ~=? 0,
+   (tamaño $ podar 1 1 $ tablas 1) ~=? 1,
+   (tamaño $ podar 1 2 $ tablas 1) ~=? 2,
+   (tamaño $ podar 3 2 $ tablas 1) ~=? 12,
+   (tamaño $ podar 3 1 $ tablas 1) ~=? 3,
+   (profundidad $ podar 0 0 $ tablas 3) ~=? 0,
+   (profundidad $ podar 2 1 $ tablas 3) ~=? 1,
+   (profundidad $ podar 3 1 $ tablas 3) ~=? 1,
+   (profundidad $ podar 3 2 $ tablas 3) ~=? 2
+   ]
 tests6 = test [
-  serialize cuatroNiveles ~=? "[1: 'a', [2: [2: 'b', [3: [3: 'c', [4: [4: 'd', [ ]], [ ]]], [ ]]], [ ]]]"
+  serialize cuatroNiveles ~=? "[1: 'a', [2: [2: 'b', [3: [3: 'c', [4: [4: 'd', [ ]], [ ]]], [ ]]], [ ]]]",
+  serialize (Entry 'a' 1 Nil ) ~=? "['a': 1, [ ]]",
+  serialize (Entry 'a' 1 $ Entry 'b' 1 Nil)  ~=? "['a': 1, ['b': 1, [ ]]]",
+  serialize (Entry 'a' 1 $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)   ~=? "['a': 1, ['b': ['a': 2, ['d': 4, [ ]]], [ ]]]",
+  serialize ( Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil)  $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil) ~=? "['b': ['a': 2, ['d': 4, [ ]]], ['b': ['a': 2, ['d': 4, [ ]]], [ ]]]",
+  serialize ( Multi 'b' (Multi 'a' (Entry 'v' 42 $ Entry 'h' 2 Nil) $ Entry 'd' 4 Nil)  Nil)  ~=? "['b': ['a': ['v': 42, ['h': 2, [ ]]], ['d': 4, [ ]]], [ ]]"
+  
   ]
 tests7 = test [
    (profundidad $ podar 10 5 superinfinito) ~=? 5,
    (profundidad $ podar 3 10 superinfinito) ~=? 10,
-   (tamaño $ podar 10 5 superinfinito) ~=? 82010
+   (tamaño $ podar 10 5 superinfinito) ~=? 82010,
+   serialize (mapMD (\k -> k) (\s -> s+1) (Entry 'a' 1 Nil)) ~=? "['a': 2, [ ]]",
+   serialize (mapMD (\k -> 'd') (\s -> s+1) (Entry 'a' 1 $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil))   ~=? "['d': 2, ['d': ['d': 3, ['d': 5, [ ]]], [ ]]]",
+   serialize (mapMD (\k -> 4) (\s -> 'y') (Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil)  $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)) ~=? "[4: [4: 'y', [4: 'y', [ ]]], [4: [4: 'y', [4: 'y', [ ]]], [ ]]]",
+   serialize (filterMD (\k -> k == 'a') (Entry 'a' 1 Nil)) ~=? "['a': 1, [ ]]",
+   serialize (filterMD (\k -> k == 'a') (Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil)  $  Multi 'b' (Entry 'a' 2 $ Entry 'd' 4 Nil) Nil)) ~=? "[ ]",
+   serialize ( filterMD (\k -> k == 'b') (Multi 'b' (Multi 'a' (Entry 'v' 42 $ Entry 'h' 2 Nil) $ Entry 'd' 4 Nil)  Nil))  ~=? "['b': [ ], [ ]]"
+  
+   
   ]
 tests8 = test [
    (serialize $ filterMD even $ Entry 4 'e' cuatroNiveles) ~=? "[4: 'e', [2: [2: 'b', [ ]], [ ]]]",
@@ -166,3 +208,5 @@ tests10 = test [
    obtener [2,3,5] cuatroNiveles ~=? Nothing,
    obtener [6,7] infinito ~=? Just 42
   ]
+
+  
