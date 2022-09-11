@@ -138,6 +138,12 @@ tresNivelesEnunciado = definir "abd" 1 $ cadena 2 "abc"
 vacio :: [Char]
 vacio = []
 
+-- Nil con tipo evitar 'Ambigous type variable'
+nilDeChar :: MultiDict Char Integer
+nilDeChar = Nil
+nilDeString :: MultiDict String Integer
+nilDeString = Nil
+
 -- Para obtener la siguiente letra en el alfabeto
 nextChar :: Char -> Char
 nextChar c = chr (ord c + 1)
@@ -175,10 +181,12 @@ allTests = test [
 tests1 = test [
    podar 5 5 cuatroNiveles ~=? cuatroNiveles,
    sumaClaves cuatroNiveles ~=? 19,
+   sumaValores Nil ~=? 0,
    sumaValores unNivelUnaEntrada ~=? 1,
    sumaValores dosNivelesUnaEntradaUnMulti ~=? 7
   ]
 tests2 = test [
+   cantMultiNoNil Nil ~=? 0,
    cantMultiNoNil cuatroNiveles ~=? 3,
    cantMultiNoNil unNivelUnaEntrada ~=? 0,
    cantMultiNoNil unNivelDosEntradas ~=? 0,
@@ -222,6 +230,7 @@ tests5 = test [
    (profundidad $ podar 3 3 $ tablas 3) ~=? 2
    ]
 tests6 = test [
+  serialize nilDeChar ~=? "[ ]",
   serialize cuatroNiveles ~=? "[1: 'a', [2: [2: 'b', [3: [3: 'c', [4: [4: 'd', [ ]], [ ]]], [ ]]], [ ]]]",
   serialize unNivelUnaEntrada ~=? "['a': 1, [ ]]",
   serialize unNivelDosEntradas  ~=? "['a': 1, ['b': 1, [ ]]]",
@@ -237,12 +246,14 @@ tests7 = test [
    serialize (mapMD nextChar id dosNivelesUnaEntradaUnMulti)   ~=? "['b': 1, ['c': ['b': 2, ['e': 4, [ ]]], [ ]]]",
    serialize (mapMD ord (const 'a') dosNivelesDosMulti) ~=? "[97: [97: 'a', [100: 'a', [ ]]], [98: [97: 'a', [100: 'a', [ ]]], [ ]]]",
    serialize (mapMD (++ "a") (+ 1) deStringsDosNiveles) ~=? "[\"Aa\": 2, [\"Ba\": [\"Aaa\": 3, [\"Ca\": 4, [ ]]], [\"Da\": 5, [ ]]]]",
+   serialize (mapMD (++ "a") (+ 1) nilDeString) ~=? "[ ]",
    serialize (filterMD (== 'a') unNivelUnaEntrada) ~=? "['a': 1, [ ]]",
    serialize (filterMD (== 'a') unNivelDosEntradas) ~=? "['a': 1, [ ]]",
    serialize (filterMD (== 'a') dosNivelesDosMulti) ~=? "['a': ['a': 2, [ ]], [ ]]",
    serialize (filterMD (== 'c') dosNivelesDosMulti) ~=? "[ ]",
    serialize (filterMD (== 'b') tresNiveles)  ~=? "['b': [ ], [ ]]",
-   serialize (filterMD ((< 'C') . head) deStringsDosNiveles) ~=? "[\"A\": 1, [\"B\": [\"Aa\": 2, [ ]], [ ]]]"
+   serialize (filterMD ((< 'C') . head) deStringsDosNiveles) ~=? "[\"A\": 1, [\"B\": [\"Aa\": 2, [ ]], [ ]]]",
+   serialize (filterMD (== 'a') nilDeChar) ~=? "[ ]"
   ]
 tests8 = test [
    (serialize $ filterMD even $ Entry 4 'e' cuatroNiveles) ~=? "[4: 'e', [2: [2: 'b', [ ]], [ ]]]",
@@ -251,7 +262,8 @@ tests8 = test [
    (serialize $ enLexicon ["b", "d"] deStringsUnNivel) ~=? "[ ]",
    (serialize $ enLexicon ["a", "aa"] deStringsUnNivel) ~=? "[\"a\": 1, [\"aa\": 2, [ ]]]",
    (serialize $ enLexicon ["a"] deStringsUnNivel) ~=? "[\"a\": 1, [ ]]",
-   (serialize $ enLexicon ["aa"] deStringsUnNivel) ~=? "[\"aa\": 2, [ ]]"
+   (serialize $ enLexicon ["aa"] deStringsUnNivel) ~=? "[\"aa\": 2, [ ]]",
+   (serialize $ enLexicon ["a", "b", "c"] nilDeString) ~=? "[ ]"
   ]
 tests9 = test [
    (serialize $ definir [2,3] 'c' cuatroNiveles) ~=? "[1: 'a', [2: [2: 'b', [3: 'c', [ ]]], [ ]]]",
@@ -266,6 +278,7 @@ tests10 = test [
    obtener [2,3,3] cuatroNiveles ~=? Just 'c',
    obtener [2,3,5] cuatroNiveles ~=? Nothing,
    obtener [6,7] infinito ~=? Just 42,
+   obtener "a" nilDeChar ~=? Nothing,
    obtener ["A"] deStringsUnNivel ~=? Just 1,
    obtener ["Aa"] deStringsUnNivel ~=? Just 2,
    obtener ["Aa"] deStringsUnNivel ~=? Just 2,
