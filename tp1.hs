@@ -5,10 +5,7 @@ import Test.HUnit
 import MultiDict
 
 
-
-
 --Multidiccionarios de prueba
-
 
 
 infinito :: MultiDict Integer Integer
@@ -132,12 +129,25 @@ tresNiveles = Multi 'b' (Multi 'a' (Entry 'v' 42 $ Entry 'h' 2 Nil) $ Entry 'd' 
 nextChar :: Char -> Char
 nextChar c = chr (ord c + 1)
 
+
+-- Para testear foldMD
+-- Suma claves
+sumaClaves :: MultiDict Integer a -> Integer
+sumaClaves = foldMD 0 (\k _ rec -> k + rec) (\k rec1 rec2 -> k + rec1 + rec2)
+-- Suma valores
+sumaValores :: MultiDict a Integer -> Integer
+sumaValores = foldMD 0 (\_ v rec -> v + rec) (\_ rec1 rec2 -> rec1 + rec2)
+
+-- Refactor test2 recMD para reusar
+cantMultiNoNil :: MultiDict a b -> Integer
+cantMultiNoNil = recMD 0 (\_ _ _ ->id) (\_ m1 _ r1 r2->if isNil m1 then r2 else 1+r1+r2)
+
 --Ejecución de los tests
 main :: IO Counts
 main = do runTestTT allTests
 
 allTests = test [
-  "ejercicio1a" ~: tests2,
+  "ejercicio1a" ~: tests1,
   "ejercicio1b" ~: tests2,
   "ejercicio2a" ~: tests3,
   "ejercicio2b" ~: tests4,
@@ -150,10 +160,18 @@ allTests = test [
   ]
 
 tests1 = test [
-   podar 5 5 cuatroNiveles ~=? cuatroNiveles
+   podar 5 5 cuatroNiveles ~=? cuatroNiveles,
+   sumaClaves cuatroNiveles ~=? 19,
+   sumaValores unNivelUnaEntrada ~=? 1,
+   sumaValores dosNivelesUnaEntradaUnMulti ~=? 7
   ]
 tests2 = test [
-   recMD 0 (\_ _ _ ->id) (\_ m1 _ r1 r2->if isNil m1 then r2 else 1+r1+r2) cuatroNiveles ~=? 3
+   cantMultiNoNil cuatroNiveles ~=? 3,
+   cantMultiNoNil unNivelUnaEntrada ~=? 0,
+   cantMultiNoNil unNivelDosEntradas ~=? 0,
+   cantMultiNoNil dosNivelesUnaEntradaUnMulti ~=? 1,
+   cantMultiNoNil dosNivelesDosMulti ~=? 2,
+   cantMultiNoNil (Multi 1 Nil Nil) ~=? 0
   ]
 tests3 = test [
    profundidad cuatroNiveles ~=? 4,
