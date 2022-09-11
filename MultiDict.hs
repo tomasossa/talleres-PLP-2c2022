@@ -1,9 +1,11 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+
 module MultiDict where
 
-import Data.Maybe
 import Data.Char
+import Data.Maybe
 
-data MultiDict a b = Nil | Entry a b (MultiDict a b) | Multi a (MultiDict a b) (MultiDict a b) deriving Eq
+data MultiDict a b = Nil | Entry a b (MultiDict a b) | Multi a (MultiDict a b) (MultiDict a b) deriving (Eq)
 
 padlength = 5
 
@@ -11,14 +13,16 @@ isNil Nil = True
 isNil _ = False
 
 padMD :: (Show a, Show b) => Int -> MultiDict a b -> String
-padMD nivel t = initialPad ++ case t of
-                    Nil -> ""
-                    Entry k v m -> "\n" ++ initialPad ++ " " ++ show k ++": "++ show v ++ comma m ++ padMD nivel m
-                    Multi k m1 m2 -> "\n" ++ initialPad ++ " " ++ show k ++": {"++ rec m1 ++ pad (padlength*nivel) ++"}" ++ comma m2 ++ padMD nivel m2
-    where levelPad = (padlength*nivel)
-          initialPad = pad levelPad
-          rec = padMD (nivel+1)
-          comma m = if isNil m then "\n" else ","
+padMD nivel t =
+  initialPad ++ case t of
+    Nil -> ""
+    Entry k v m -> "\n" ++ initialPad ++ " " ++ show k ++ ": " ++ show v ++ comma m ++ padMD nivel m
+    Multi k m1 m2 -> "\n" ++ initialPad ++ " " ++ show k ++ ": {" ++ rec m1 ++ pad (padlength * nivel) ++ "}" ++ comma m2 ++ padMD nivel m2
+  where
+    levelPad = (padlength * nivel)
+    initialPad = pad levelPad
+    rec = padMD (nivel + 1)
+    comma m = if isNil m then "\n" else ","
 
 pad :: Int -> String
 pad i = replicate i ' '
@@ -26,19 +30,21 @@ pad i = replicate i ' '
 instance (Show a, Show b) => Show (MultiDict a b) where
   show x = "{" ++ padMD 0 x ++ "}"
 
-foldMD :: b -> (a -> c -> b -> b) -> (a -> b -> b -> b) -> (MultiDict a c) -> b
+foldMD :: b -> (a -> c -> b -> b) -> (a -> b -> b -> b) -> MultiDict a c -> b
 foldMD casoNil casoEntry casoMulti dict = case dict of
   Nil -> casoNil
   Entry k v m -> casoEntry k v (rec m)
   Multi k m1 m2 -> casoMulti k (rec m1) (rec m2)
-  where rec = foldMD casoNil casoEntry casoMulti
+  where
+    rec = foldMD casoNil casoEntry casoMulti
 
-recMD :: b  -> (a -> c -> MultiDict a c -> b -> b) -> (a -> MultiDict a c -> MultiDict a c -> b -> b -> b) -> MultiDict a c -> b
+recMD :: b -> (a -> c -> MultiDict a c -> b -> b) -> (a -> MultiDict a c -> MultiDict a c -> b -> b -> b) -> MultiDict a c -> b
 recMD casoNil casoEntry casoMulti dict = case dict of
   Nil -> casoNil
   Entry k v m -> casoEntry k v m (rec m)
   Multi k m1 m2 -> casoMulti k m1 m2 (rec m1) (rec m2)
-  where rec = recMD casoNil casoEntry casoMulti
+  where
+    rec = recMD casoNil casoEntry casoMulti
 
 profundidad :: MultiDict a b -> Integer
 profundidad = foldMD 0 (\_ _ rec -> if rec == 0 then 1 else rec) (\_ rec1 rec2 -> if rec1 >= rec2 then rec1 + 1 else rec2)
@@ -47,11 +53,13 @@ profundidad = foldMD 0 (\_ _ rec -> if rec == 0 then 1 else rec) (\_ rec1 rec2 -
 tamaño :: MultiDict a b -> Integer
 tamaño = foldMD 0 (\_ _ rec -> rec + 1) (\_ rec1 rec2 -> 1 + rec1 + rec2)
 
-podarHasta = foldMD
-          (\_ _ _ -> Nil)
-          (\k v r l p lorig->cortarOSeguir l p $ Entry k v $ r (l-1) p lorig)
-          (\k r1 r2 l p lorig ->cortarOSeguir l p $ Multi k (r1 lorig (p-1) lorig) (r2 (l-1) p lorig))
-  where cortarOSeguir l p x = if l <= 0 || p <= 0 then Nil else x
+podarHasta =
+  foldMD
+    (\_ _ _ -> Nil)
+    (\k v r l p lorig -> cortarOSeguir l p $ Entry k v $ r (l -1) p lorig)
+    (\k r1 r2 l p lorig -> cortarOSeguir l p $ Multi k (r1 lorig (p -1) lorig) (r2 (l -1) p lorig))
+  where
+    cortarOSeguir l p x = if l <= 0 || p <= 0 then Nil else x
 
 -- Poda a lo ancho y en profundidad.
 -- El primer argumento es la cantidad máxima de claves que deben quedar en cada nivel.
@@ -63,24 +71,27 @@ podar long prof m = podarHasta m long prof long
 --Es decir, el valor asociado a la clave i es un diccionario con las claves de 1 en adelante, donde el valor de la clave j es i*j.
 tablas :: Integer -> MultiDict Integer Integer
 tablas n = Multi n (tablaDeMultiplicar n) (tablas (n + 1))
-  where tablaDeMultiplicar n = foldr ($) Nil [Entry m (m*n) | m <- [1..]]
+  where
+    tablaDeMultiplicar n = foldr ($) Nil [Entry m (m * n) | m <- [1 ..]]
 
 serialize :: (Show a, Show b) => MultiDict a b -> String
 serialize = foldMD "[ ]" serializeEntry serializeMulti
-  where serializeEntry = (\k v rec -> "[" ++ show k ++ ": " ++ show v ++ ", " ++ rec ++ "]")
-        serializeMulti = (\k rec1 rec2 -> "[" ++ show k ++ ": " ++ rec1 ++ ", " ++ rec2 ++ "]")
+  where
+    serializeEntry = \k v rec -> "[" ++ show k ++ ": " ++ show v ++ ", " ++ rec ++ "]"
+    serializeMulti = \k rec1 rec2 -> "[" ++ show k ++ ": " ++ rec1 ++ ", " ++ rec2 ++ "]"
 
-mapMD :: (a->c) -> (b->d) -> MultiDict a b -> MultiDict c d
+mapMD :: (a -> c) -> (b -> d) -> MultiDict a b -> MultiDict c d
 mapMD f g = foldMD Nil (\k v rec -> Entry (f k) (g v) rec) (\k rec1 rec2 -> Multi (f k) rec1 rec2)
 
 --Filtra recursivamente mirando las claves de los subdiccionarios.
-filterMD :: (a->Bool) -> MultiDict a b -> MultiDict a b
+filterMD :: (a -> Bool) -> MultiDict a b -> MultiDict a b
 filterMD p = foldMD Nil (\k v rec -> if p k then Entry k v rec else rec) (\k rec1 rec2 -> if p k then Multi k rec1 rec2 else rec2)
 
 enLexicon :: [String] -> MultiDict String b -> MultiDict String b
-enLexicon validas = filtrarClavesValidas . converitClavesAMinusculas
-  where converitClavesAMinusculas = mapMD (map toLower) id
-        filtrarClavesValidas = filterMD (flip elem validas)
+enLexicon validas = filtrarClavesValidas . convertirClavesAMinusculas
+  where
+    convertirClavesAMinusculas = mapMD (map toLower) id
+    filtrarClavesValidas = filterMD (flip elem validas)
 
 cadena :: Eq a => b -> [a] -> MultiDict a b
 cadena v = foldr (\x rec -> if isNil rec then Entry x v Nil else Multi x rec Nil) Nil
@@ -89,14 +100,25 @@ cadena v = foldr (\x rec -> if isNil rec then Entry x v Nil else Multi x rec Nil
 --donde el valor asociado a cada clave es un multidiccionario con la clave siguiente, y así sucesivamente hasta
 --llegar a la última clave de la lista, cuyo valor es el dato de tipo b pasado como parámetro.
 definir :: Eq a => [a] -> b -> MultiDict a b -> MultiDict a b
-definir (x:xs) v d = (recMD (\ks -> cadena v ks)
-       (\k1 v1 m r (k:ks)-> if k1 == k then armarDic ks k m (cadena v ks) else Entry k1 v1 (r (k:ks)))
-       (\k1 m1 m2 r1 r2 (k:ks) -> if k1 == k then armarDic ks k m2 (r1 ks) else Multi k1 m1 (r2 (k:ks)))) d (x:xs)
-  where armarDic ks k resto interior = if null ks then Entry k v resto else Multi k interior resto
+definir (x : xs) v d =
+  ( recMD
+      (\ks -> cadena v ks)
+      (\k1 v1 m r (k : ks) -> if k1 == k then armarDic ks k m (cadena v ks) else Entry k1 v1 (r (k : ks)))
+      (\k1 m1 m2 r1 r2 (k : ks) -> if k1 == k then armarDic ks k m2 (r1 ks) else Multi k1 m1 (r2 (k : ks)))
+  )
+    d
+    (x : xs)
+  where
+    armarDic ks k resto interior = if null ks then Entry k v resto else Multi k interior resto
 
 obtener :: Eq a => [a] -> MultiDict a b -> Maybe b
-obtener (x:xs) d = (foldMD (const Nothing)
-        (\k1 v r -> \(k:ks) -> if k1 == k then obtenerEntry ks v else r (k:ks))
-        (\k1 r1 r2 -> \(k:ks) -> if k1 == k then obtenerMulti ks r1 else r2 (k:ks))) d (x:xs)
-        where obtenerEntry ks v = if null ks then Just v else Nothing
-              obtenerMulti ks resto = if null ks then Nothing else resto ks
+obtener (x : xs) d =
+  foldMD
+    (const Nothing)
+    (\k1 v r (k : ks) -> if k1 == k then obtenerEntry ks v else r (k : ks))
+    (\k1 r1 r2 (k : ks) -> if k1 == k then obtenerMulti ks r1 else r2 (k : ks))
+    d
+    (x : xs)
+  where
+    obtenerEntry ks v = if null ks then Just v else Nothing
+    obtenerMulti ks resto = if null ks then Nothing else resto ks
