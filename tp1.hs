@@ -131,6 +131,13 @@ deStringsUnNivel = Entry "A" 1 $ Entry "Aa" 2 $ Nil
 deStringsDosNiveles :: MultiDict String Integer
 deStringsDosNiveles = Entry "A" 1 $ Multi "B" (Entry "Aa" 2 $ Entry "C" 3 $ Nil) $ Entry "D" 4 $ Nil
 
+deStringsTresNiveles :: MultiDict Char Integer
+deStringsTresNiveles = definir "abd" 1 $ cadena 2 "abc"
+
+-- Array vació con tipo para cadena
+vacio :: [Char]
+vacio = []
+
 -- Para obtener la siguiente letra en el alfabeto
 nextChar :: Char -> Char
 nextChar c = chr (ord c + 1)
@@ -248,7 +255,11 @@ tests8 = test [
   ]
 tests9 = test [
    (serialize $ definir [2,3] 'c' cuatroNiveles) ~=? "[1: 'a', [2: [2: 'b', [3: 'c', [ ]]], [ ]]]",
-   (profundidad $ definir [4] 'g' $ definir [4] 'e' $ definir [2,4] 'f' $ definir [2,3,4,5] 'e' cuatroNiveles) ~=? 4
+   (profundidad $ definir [4] 'g' $ definir [4] 'e' $ definir [2,4] 'f' $ definir [2,3,4,5] 'e' cuatroNiveles) ~=? 4,
+   (serialize $ cadena 1 vacio) ~=? "[ ]",
+   (serialize $ cadena 1 "a") ~=? "['a': 1, [ ]]",
+   (serialize $ cadena 1 "abc") ~=? "['a': ['b': ['c': 1, [ ]], [ ]], [ ]]",
+   (serialize $ cadena "abc" [1,2,3]) ~=? "[1: [2: [3: \"abc\", [ ]], [ ]], [ ]]"
   ]
 tests10 = test [
    (obtener [4] $ definir [4] 'g' $ definir [4] 'e' $ definir [2,4] 'f' $ definir [2,3,4,5] 'e' cuatroNiveles) ~=? Just 'g',
