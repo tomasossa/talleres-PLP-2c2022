@@ -131,8 +131,8 @@ deStringsUnNivel = Entry "A" 1 $ Entry "Aa" 2 $ Nil
 deStringsDosNiveles :: MultiDict String Integer
 deStringsDosNiveles = Entry "A" 1 $ Multi "B" (Entry "Aa" 2 $ Entry "C" 3 $ Nil) $ Entry "D" 4 $ Nil
 
-deStringsTresNiveles :: MultiDict Char Integer
-deStringsTresNiveles = definir "abd" 1 $ cadena 2 "abc"
+tresNivelesEnunciado :: MultiDict Char Integer
+tresNivelesEnunciado = definir "abd" 1 $ cadena 2 "abc"
 
 -- Array vació con tipo para cadena
 vacio :: [Char]
@@ -265,7 +265,17 @@ tests10 = test [
    (obtener [4] $ definir [4] 'g' $ definir [4] 'e' $ definir [2,4] 'f' $ definir [2,3,4,5] 'e' cuatroNiveles) ~=? Just 'g',
    obtener [2,3,3] cuatroNiveles ~=? Just 'c',
    obtener [2,3,5] cuatroNiveles ~=? Nothing,
-   obtener [6,7] infinito ~=? Just 42
+   obtener [6,7] infinito ~=? Just 42,
+   obtener ["A"] deStringsUnNivel ~=? Just 1,
+   obtener ["Aa"] deStringsUnNivel ~=? Just 2,
+   obtener ["Aa"] deStringsUnNivel ~=? Just 2,
+   obtener "a" unNivelDosEntradas ~=? Just 1,
+   obtener "c" unNivelDosEntradas ~=? Nothing,
+   obtener "a" tresNivelesEnunciado ~=? Nothing,
+   obtener "abd" tresNivelesEnunciado ~=? Just 1,
+   obtener "abc" tresNivelesEnunciado ~=? Just 2,
+   obtener "abcd" tresNivelesEnunciado ~=? Nothing,
+   obtener "af" tresNivelesEnunciado ~=? Nothing
   ]
 
   
