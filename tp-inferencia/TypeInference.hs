@@ -48,6 +48,9 @@ inferNormal e = case infer' e 0 of
     Error s -> Error s
 
 
+intersectC :: Context -> Context -> [UnifGoal]
+intersectC c1 c2 = [(evalC c1 v1, evalC c2 v2) | v1 <- domainC c1, v2 <- domainC c2, v1 == v2]
+
 infer' :: PlainExp -> Int -> Result (Int, TypingJudgment)
 
 infer' (SuccExp e)    n = case infer' e n of
@@ -77,7 +80,7 @@ infer' (AppExp u v)           n = case infer' u n of
                                     OK (n', (cu, u', tu)) ->
                                       case infer' v n' of
                                         OK (n'', (cv, v', tv)) ->
-                                          case mgu ((tu, TFun tv (TVar n'')) : [(evalC cu t1, evalC cv t2) | t1 <- domainC cu, t2 <- domainC cv, t1 == t2]) of
+                                          case mgu ((tu, TFun tv (TVar n'')) : intersectC cu cv) of
                                             UOK subst -> OK (n'' + 1,
                                                                 (
                                                                   joinC [subst <.> cu, subst <.> cv],
@@ -103,11 +106,50 @@ infer' (LamExp x _ e)         n = case infer' e n of
 
 -- OPCIONALES
 
-infer' (PredExp e)            n = undefined
-infer' (IsZeroExp e)          n = undefined
-infer' TrueExp                n = undefined
-infer' FalseExp               n = undefined
-infer' (IfExp u v w)          n = undefined
+infer' (PredExp e)            n = case infer' e n of
+                                    OK (n', (c', e', t')) ->
+                                      case mgu [(t', TNat)] of
+                                        UOK subst -> OK (n',
+                                                            (
+                                                            subst <.> c',
+                                                            subst <.> PredExp e',
+                                                            TNat
+                                                            )
+                                                        )
+                                        UError u1 u2 -> uError u1 u2
+                                    res@(Error _) -> res
+infer' (IsZeroExp e)          n = case infer' e n of
+                                    OK (n', (c', e', t')) ->
+                                      case mgu [(t', TNat)] of
+                                        UOK subst -> OK (n',
+                                                            (
+                                                            subst <.> c',
+                                                            subst <.> IsZeroExp e',
+                                                            TBool
+                                                            )
+                                                        )
+                                        UError u1 u2 -> uError u1 u2
+                                    res@(Error _) -> res
+infer' TrueExp                n = OK (n, (emptyContext, TrueExp, TBool))
+infer' FalseExp               n = OK (n, (emptyContext, FalseExp, TBool))
+infer' (IfExp u v w)          n = case infer' u n of
+                                    OK (n', (cu, u', tu)) ->
+                                      case infer' v n' of
+                                        OK (n'', (cv, v', tv)) ->
+                                          case infer' w n'' of
+                                            OK (n''', (cw, w', tw)) ->
+                                              case mgu ((tv, tw) : (tu, TBool) : (intersectC cu cv ++ intersectC cv cw ++ intersectC cw cu)) of
+                                                UOK subst -> OK (n''',
+                                                                    (
+                                                                      joinC [subst <.> cu, subst <.> cv, subst <.> cw],
+                                                                      subst <.> IfExp u' v' w',
+                                                                      subst <.> tv
+                                                                    )
+                                                                )
+                                                UError u1 u2 -> uError u1 u2
+                                            resw@(Error _) -> resw
+                                        resv@(Error _) -> resv
+                                    resu@(Error _) -> resu
 
 --------------------------------
 -- YAPA: Error de unificacion --
