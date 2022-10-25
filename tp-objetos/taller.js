@@ -41,8 +41,7 @@ function apply(f, a, b) { //Pueden usar apply(f, a) o apply(f, a, b).
 // Ejercicio 1
 function esValuacion(val) {
   for (const clave in val) {
-    let valor = val[clave];
-    if(valor !== true && valor !== false) {
+    if(typeof val[clave] !== 'boolean') {
       return false;
     }
   }
