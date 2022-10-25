@@ -42,7 +42,7 @@ function apply(f, a, b) { //Pueden usar apply(f, a) o apply(f, a, b).
 function esValuacion(val) {
   for (const clave in val) {
     let valor = val[clave];
-    if(valor !== true && valor !== false){
+    if(valor !== true && valor !== false) {
       return false;
     }
   }
@@ -107,7 +107,22 @@ OperacionBinaria.prototype.fv = function() {
 }
     
 // Ejercicio 5
+VarProp.prototype.evaluar = function(val) {
+  return val[this.nombre];
+}
 
+Negacion.prototype.evaluar = function(val) {
+  let valor = this.prop.evaluar(val);
+  return valor === undefined ? undefined : !valor;
+}
+
+OperacionBinaria.prototype.evaluar = function(val) {
+  let valorIzq = this.izq.evaluar(val);
+  let valorDer = this.der.evaluar(val);
+  if(valorIzq === undefined || valorDer === undefined) return undefined;
+  
+  return this.f(valorIzq, valorDer);
+}
     
 // Ejercicio 6
 
