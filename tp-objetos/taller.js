@@ -50,17 +50,12 @@ function esValuacion(val) {
 
 // Ejercicio 2
 function union(v1, v2) {
-  let resultado = {};
-  copiarValuacion(resultado, v2);
-  copiarValuacion(resultado, v1);
+  let resultado = Object.create(v2);
+  for (const clave in v1) {
+    resultado[clave] = v1[clave];
+  }
 
   return resultado;
-}
-
-function copiarValuacion(destino, origen) {
-  for (const clave in origen) {
-    destino[clave] = origen[clave];
-  }
 }
 
 // Ejercicio 3
