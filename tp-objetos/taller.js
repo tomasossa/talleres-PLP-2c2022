@@ -84,29 +84,27 @@ VarProp.prototype.toString = function() {
   return this.nombre;
 }
 
-VarProp.prototype.fv = function() {
-  return (new Set()).add(this.nombre);
-}
-
 Negacion.prototype.toString = function() {
   return "&not;" + this.prop.toString();
+}
+
+
+OperacionBinaria.prototype.toString = function() {
+  return "(" + this.izq.toString() + " " + this.operador + " " + this.der.toString() + ")";
+}
+
+// Ejercicio 4
+VarProp.prototype.fv = function() {
+  return (new Set()).add(this.nombre);
 }
 
 Negacion.prototype.fv = function() {
   return this.prop.fv();
 }
 
-OperacionBinaria.prototype.toString = function() {
-  return "(" + this.izq.toString() + " " + this.operador + " " + this.der.toString() + ")";
-}
-
 OperacionBinaria.prototype.fv = function() {
   return setUnion(this.izq.fv(), this.der.fv());
 }
-
-
-// Ejercicio 4
-
     
 // Ejercicio 5
 
