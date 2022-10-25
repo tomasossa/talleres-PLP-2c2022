@@ -120,12 +120,19 @@ OperacionBinaria.prototype.evaluar = function(val) {
   let valorIzq = this.izq.evaluar(val);
   let valorDer = this.der.evaluar(val);
   if(valorIzq === undefined || valorDer === undefined) return undefined;
-  
+
   return this.f(valorIzq, valorDer);
 }
     
 // Ejercicio 6
+let implica = (izq, der) => new OperacionBinaria("&sup;", (x, y) => !x || y, izq, der);
 
+function cambiarOperador(prop, operador) {
+  let result = Object.create(prop);
+  result.operador = operador;
+
+  return result;
+}
 
 //Tests
 
