@@ -51,13 +51,13 @@ function esValuacion(val) {
 // Ejercicio 2
 function union(v1, v2) {
   let resultado = {};
-  copiarValores(resultado, v2);
-  copiarValores(resultado, v1);
+  copiarValuacion(resultado, v2);
+  copiarValuacion(resultado, v1);
 
   return resultado;
 }
 
-function copiarValores(destino, origen) {
+function copiarValuacion(destino, origen) {
   for (const clave in origen) {
     destino[clave] = origen[clave];
   }
@@ -345,7 +345,7 @@ function testEjercicio6(res) {
   let eval5 = impl3.evaluar(val5);
   let check19 = impl1.evaluar(val9);
   let check29 = impl2.evaluar(val9);
-  
+
   res.write(`impl1.toString() ${si_o_no(impl1StringBien)} es ${impl1String}.`, impl1StringBien);
   res.write(`impl2.toString() ${si_o_no(impl2StringBien)} es ${impl2String}.`, impl2StringBien);
   res.write(`El resultado de evaluar ${impl3.toString()} en val1 es ${eval1}.`, eval1);
