@@ -316,18 +316,23 @@ function testEjercicio4(res) {
     let prop1 = o(no(y(v("p"), v("q"))), y(v("r"), v("q")));
     let prop2 = no(no(v("a")));
     let prop3 = o(y(v("p"), v("q")), y(v("r"), v("z")));
+    let prop4 = o(y(v("a"), no(v("a"))), o(y(v("b"), no(v("a"))), y(v("c"), no(v("b")))));
     let set1 = new Set();
     let set2 = new Set();
     let set3 = new Set();
+    let set4 = new Set();
     set1.add("p").add("q").add("r");
     set2.add("a");
     set3.add("p").add("q").add("r").add("z");
+    set4.add("a").add("b").add("c");
     let prop1bien = eqSet(prop1.fv(), set1);
     let prop2bien = eqSet(prop2.fv(), set2);
     let prop3bien = eqSet(prop3.fv(), set3);
+    let prop4bien = eqSet(prop4.fv(), set4);
     res.write(`Las variables libres de ${prop1.toString()} ${si_o_no(prop1bien)} son p, q y r.`, prop1bien);
     res.write(`La variable libre de ${prop2.toString()} ${si_o_no(prop2bien)} es a.`, prop2bien);
     res.write(`Las variables libres de ${prop3.toString()} ${si_o_no(prop3bien)} son p, q, r y z.`, prop3bien);
+    res.write(`Las variables libres de ${prop4.toString()} ${si_o_no(prop4bien)} son a, b, c.`, prop4bien);
 }
 
 // Test Ejercicio 5
