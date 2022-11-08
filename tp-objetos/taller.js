@@ -378,7 +378,8 @@ function testEjercicio5(res) {
     let check41 = prop4.evaluar(val1);
     let check42 = prop4.evaluar(val9);
     let check43 = prop4.evaluar(val10);
-    let checkunion4 = prop4.evaluar(union(union(val1, val9), val10));
+    let checkunion41 = prop4.evaluar(union(union(val1, val9), val10));
+    let checkunion42 = prop4.evaluar(union(union(val8, val9), val10));
     let checkunion5 = prop5.evaluar(union(union(val8, val9), val10));
     res.write(`El resultado de evaluar ${prop1.toString()} en val1 es ${check11}.`, check11);
     res.write(`El resultado de evaluar ${prop1.toString()} en val2 es ${check12}.`, check12);
@@ -416,7 +417,8 @@ function testEjercicio5(res) {
     res.write(`El resultado de evaluar ${prop1.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion1}.`, checkunion1);
     res.write(`El resultado de evaluar ${prop2.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion2}.`, checkunion2 === undefined);
     res.write(`El resultado de evaluar ${prop3.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion3}.`, checkunion3 === false);
-    res.write(`El resultado de evaluar ${prop4.toString()} en la uni&oacute;n de val1 y val9 y val 10 es ${checkunion4}.`, checkunion4);
+    res.write(`El resultado de evaluar ${prop4.toString()} en la uni&oacute;n de val1 y val9 y val 10 es ${checkunion41}.`, checkunion41);
+    res.write(`El resultado de evaluar ${prop4.toString()} en la uni&oacute;n de val8 y val9 y val 10 es ${checkunion42}.`, checkunion42);
     res.write(`El resultado de evaluar ${prop5.toString()} en la uni&oacute;n de val8 y val9 y val 10 es ${checkunion5}.`, checkunion5 == false);
 }
 
@@ -425,21 +427,39 @@ function testEjercicio5(res) {
 function testEjercicio6(res) {
     let propa = v("a");
     let propNoNoa = no(no(v("a")));
+
+    let prop1 = y(v("p"), v("q"));
+    let prop2 = cambiarOperador(prop1, "y");
+
+    let prop1String = "(p &and; q)"
+    let prop2String = "(p y q)"
+    let prop1StringBien = prop1.toString() == prop1String;
+    let prop2StringBien = prop2.toString() == prop2String;
+
     let impl1 = implica(propNoNoa, propa);
     let impl2 = cambiarOperador(impl1, "=&gt;");
     let impl3 = implica(v("p"), v("q"));
+    let impl4 = implica(impl1, impl2);
     let impl1String = "(&not;&not;a &sup; a)";
     let impl2String = "(&not;&not;a =&gt; a)";
+    let impl4String = "("+impl1String+" &sup; "+impl2String+")";
     let impl1StringBien = impl1.toString() == impl1String;
     let impl2StringBien = impl2.toString() == impl2String;
+    let impl4StringBien = impl4.toString() == impl4String;
     let eval1 = impl3.evaluar(val1);
     let eval2 = impl3.evaluar(val2);
     let eval3 = impl3.evaluar(val3);
     let eval5 = impl3.evaluar(val5);
     let check19 = impl1.evaluar(val9);
     let check29 = impl2.evaluar(val9);
+
+    res.write(`prop1String.toString() ${si_o_no(prop1StringBien)} es ${prop1String}.`, prop1StringBien);
+    res.write(`prop2String.toString() ${si_o_no(prop2StringBien)} es ${prop2String}.`, prop2StringBien);
+
     res.write(`impl1.toString() ${si_o_no(impl1StringBien)} es ${impl1String}.`, impl1StringBien);
     res.write(`impl2.toString() ${si_o_no(impl2StringBien)} es ${impl2String}.`, impl2StringBien);
+    res.write(`impl4.toString() ${si_o_no(impl4StringBien)} es ${impl4String}.`, impl4StringBien);
+    
     res.write(`El resultado de evaluar ${impl3.toString()} en val1 es ${eval1}.`, eval1);
     res.write(`El resultado de evaluar ${impl3.toString()} en val2 es ${eval2}.`, eval2);
     res.write(`El resultado de evaluar ${impl3.toString()} en val3 es ${eval3}.`, eval3);
