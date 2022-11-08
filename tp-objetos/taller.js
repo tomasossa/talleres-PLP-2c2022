@@ -1,28 +1,28 @@
 // Definiciones globales (no modificar acá, en cambio, completar las secciones "Ejercicio i")
-let val1 = {p: true, q: true, r: true};
-let val2 = {p: false, q: false, r: false};
-let val3 = {p: false, q: true, r: true};
-let val4 = {p: false, q: false, r: true};
-let val5 = {p: true, q: false, r: true};
-let val6 = {p: true, q: false, r: false};
-let val7 = {p: false, q: true, r: false};
-let val8 = {p: true, q: true, r: false};
-let val9 = {a: 1+1==2, b: false=="", c: false===""};
-let val10 = {p: true, q: false, z: true};
+let val1 = { p: true, q: true, r: true };
+let val2 = { p: false, q: false, r: false };
+let val3 = { p: false, q: true, r: true };
+let val4 = { p: false, q: false, r: true };
+let val5 = { p: true, q: false, r: true };
+let val6 = { p: true, q: false, r: false };
+let val7 = { p: false, q: true, r: false };
+let val8 = { p: true, q: true, r: false };
+let val9 = { a: 1 + 1 == 2, b: false == "", c: false === "" };
+let val10 = { p: true, q: false, z: true };
 let val11 = Object.create(val7);
-let mal1 = {p: true, q: 1, r: true};
-let mal2 = {p: true, q: true, r: 0};
+let mal1 = { p: true, q: 1, r: true };
+let mal2 = { p: true, q: true, r: 0 };
 let mal3 = Object.create(mal2);
 let val16 = {};
-let val17 = {a:true,b:false};
-let val18 = {a:true,b:5};
+let val17 = { a: true, b: false };
+let val18 = { a: true, b: 5 };
 let val19 = Object.create(val17);
 val19.c = true;
 let val20 = Object.create(val18);
-let val21 = {a:true,b:false};
-let val22 = {c:true,d:true};
-let val23 = {a:true,b:false,c:true};
-let val24 = {a:false,b:true,d:false};
+let val21 = { a: true, b: false };
+let val22 = { c: true, d: true };
+let val23 = { a: true, b: false, c: true };
+let val24 = { a: false, b: true, d: false };
 
 
 let v = (nombre) => new VarProp(nombre);
@@ -31,13 +31,13 @@ let y = (izq, der) => new OperacionBinaria("&and;", (x, y) => x && y, izq, der);
 let o = (izq, der) => new OperacionBinaria("&or;", (x, y) => x || y, izq, der);
 
 function setUnion(setA, setB) {
-  let res = new Set(setA);//Constructor por copia predefinido.
+    let res = new Set(setA);//Constructor por copia predefinido.
 
-  for (const element of setB) {
-    res.add(element);
-  }
+    for (const element of setB) {
+        res.add(element);
+    }
 
-  return res;
+    return res;
 }
 
 const eqSet = (xs, ys) =>
@@ -52,93 +52,93 @@ function apply(f, a, b) { //Pueden usar apply(f, a) o apply(f, a, b).
 // Ejercicio 1
 
 function esValuacion(val) {
-  for (const clave in val) {
-    if(typeof val[clave] !== 'boolean') {
-      return false;
+    for (const clave in val) {
+        if (typeof val[clave] !== 'boolean') {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 // Ejercicio 2
 function union(v1, v2) {
-  let resultado = Object.create(v2);
-  for (const clave in v1) {
-    resultado[clave] = v1[clave];
-  }
+    let resultado = Object.create(v2);
+    for (const clave in v1) {
+        resultado[clave] = v1[clave];
+    }
 
-  return resultado;
+    return resultado;
 }
 
 
 // Ejercicio 3
 function VarProp(nombre) {
-  this.nombre = nombre;
+    this.nombre = nombre;
 }
 
 function Negacion(prop) {
-  this.prop = prop;
+    this.prop = prop;
 }
 
 function OperacionBinaria(operador, f, izq, der) {
-  this.operador = operador;
-  this.f = f;
-  this.izq = izq;
-  this.der = der;
+    this.operador = operador;
+    this.f = f;
+    this.izq = izq;
+    this.der = der;
 }
 
-VarProp.prototype.toString = function() {
-  return this.nombre;
+VarProp.prototype.toString = function () {
+    return this.nombre;
 }
 
-Negacion.prototype.toString = function() {
-  return "&not;" + this.prop.toString();
+Negacion.prototype.toString = function () {
+    return "&not;" + this.prop.toString();
 }
 
 
-OperacionBinaria.prototype.toString = function() {
-  return "(" + this.izq.toString() + " " + this.operador + " " + this.der.toString() + ")";
+OperacionBinaria.prototype.toString = function () {
+    return "(" + this.izq.toString() + " " + this.operador + " " + this.der.toString() + ")";
 }
 
 // Ejercicio 4
-VarProp.prototype.fv = function() {
-  return (new Set()).add(this.nombre);
+VarProp.prototype.fv = function () {
+    return (new Set()).add(this.nombre);
 }
 
-Negacion.prototype.fv = function() {
-  return this.prop.fv();
+Negacion.prototype.fv = function () {
+    return this.prop.fv();
 }
 
-OperacionBinaria.prototype.fv = function() {
-  return setUnion(this.izq.fv(), this.der.fv());
+OperacionBinaria.prototype.fv = function () {
+    return setUnion(this.izq.fv(), this.der.fv());
 }
-    
+
 // Ejercicio 5
-VarProp.prototype.evaluar = function(val) {
-  return val[this.nombre];
+VarProp.prototype.evaluar = function (val) {
+    return val[this.nombre];
 }
 
-Negacion.prototype.evaluar = function(val) {
-  let valor = this.prop.evaluar(val);
-  return valor === undefined ? undefined : !valor;
+Negacion.prototype.evaluar = function (val) {
+    let valor = this.prop.evaluar(val);
+    return valor === undefined ? undefined : !valor;
 }
 
-OperacionBinaria.prototype.evaluar = function(val) {
-  let valorIzq = this.izq.evaluar(val);
-  let valorDer = this.der.evaluar(val);
-  if(valorIzq === undefined || valorDer === undefined) return undefined;
+OperacionBinaria.prototype.evaluar = function (val) {
+    let valorIzq = this.izq.evaluar(val);
+    let valorDer = this.der.evaluar(val);
+    if (valorIzq === undefined || valorDer === undefined) return undefined;
 
-  return this.f(valorIzq, valorDer);
+    return this.f(valorIzq, valorDer);
 }
-    
+
 // Ejercicio 6
 let implica = (izq, der) => new OperacionBinaria("&sup;", (x, y) => !x || y, izq, der);
 
 function cambiarOperador(prop, operador) {
-  let result = Object.create(prop);
-  result.operador = operador;
+    let result = Object.create(prop);
+    result.operador = operador;
 
-  return result;
+    return result;
 }
 
 
@@ -146,21 +146,21 @@ function cambiarOperador(prop, operador) {
 //Tests
 
 function testEjemplo(res) {
-  res.write("\n|| Probando la suma ||\n");
-  let sumando1 = 4;
-  let sumando2 = 6;
-  let resultado_obtenido = sumando1 + sumando2;
-  let resultado_esperado = 10;
-  res.write("El resultado de sumar " + sumando1 + " y " + sumando2 + " da " + resultado_obtenido, (resultado_obtenido===resultado_esperado));
-  sumando1 = "4";
-  sumando2 = "6";
-  resultado_obtenido = sumando1 + sumando2;
-  resultado_esperado = "10";
-  res.write("El resultado de sumar " + sumando1 + " y " + sumando2 + " da " + resultado_obtenido, (resultado_obtenido===resultado_esperado));
-  sumando1 = 4;
-  sumando2 = undefined;
-  resultado_obtenido = sumando1 + sumando2;
-  res.write("El resultado de sumar " + sumando1 + " y " + sumando2 + " da " + resultado_obtenido);
+    res.write("\n|| Probando la suma ||\n");
+    let sumando1 = 4;
+    let sumando2 = 6;
+    let resultado_obtenido = sumando1 + sumando2;
+    let resultado_esperado = 10;
+    res.write("El resultado de sumar " + sumando1 + " y " + sumando2 + " da " + resultado_obtenido, (resultado_obtenido === resultado_esperado));
+    sumando1 = "4";
+    sumando2 = "6";
+    resultado_obtenido = sumando1 + sumando2;
+    resultado_esperado = "10";
+    res.write("El resultado de sumar " + sumando1 + " y " + sumando2 + " da " + resultado_obtenido, (resultado_obtenido === resultado_esperado));
+    sumando1 = 4;
+    sumando2 = undefined;
+    resultado_obtenido = sumando1 + sumando2;
+    res.write("El resultado de sumar " + sumando1 + " y " + sumando2 + " da " + resultado_obtenido);
 }
 
 // Test Ejercicio 1
@@ -185,109 +185,109 @@ function testEjercicio1(res) {
     let val19Si = esValuacion(val19);
     let val20No = esValuacion(val20);
 
-	res.write(`val1 ${si_o_no(val1Si)} es una valuaci&oacute;n.`, val1Si);
-	res.write(`val2 ${si_o_no(val2Si)} es una valuaci&oacute;n.`, val2Si);
-	res.write(`val3 ${si_o_no(val3Si)} es una valuaci&oacute;n.`, val3Si);
-	res.write(`val4 ${si_o_no(val4Si)} es una valuaci&oacute;n.`, val4Si);
-	res.write(`val5 ${si_o_no(val5Si)} es una valuaci&oacute;n.`, val5Si);
-	res.write(`val6 ${si_o_no(val6Si)} es una valuaci&oacute;n.`, val6Si);
-	res.write(`val7 ${si_o_no(val7Si)} es una valuaci&oacute;n.`, val7Si);
-	res.write(`val8 ${si_o_no(val8Si)} es una valuaci&oacute;n.`, val8Si);
-	res.write(`val9 ${si_o_no(val9Si)} es una valuaci&oacute;n.`, val9Si);
-	res.write(`val10 ${si_o_no(val10Si)} es una valuaci&oacute;n.`, val10Si);
-	res.write(`val11 ${si_o_no(val11Si)} es una valuaci&oacute;n.`, val11Si);
-	res.write(`mal1 ${si_o_no(mal1No)} es una valuaci&oacute;n.`, !mal1No);
-	res.write(`mal2 ${si_o_no(mal2No)} es una valuaci&oacute;n.`, !mal2No);
-	res.write(`mal3 ${si_o_no(mal3No)} es una valuaci&oacute;n.`, !mal3No);
-  res.write(`val16 ${si_o_no(val16Si)} es una valuaci&oacute;n.`, val16Si);
-  res.write(`val17 ${si_o_no(val17si)} es una valuaci&oacute;n.`, val17si);
-  res.write(`val18 ${si_o_no(val18No)} es una valuaci&oacute;n.`, !val18No);
-  res.write(`val19 ${si_o_no(val19Si)} es una valuaci&oacute;n.`, val19Si);
-  res.write(`val20 ${si_o_no(val20No)} es una valuaci&oacute;n.`, !val20No);
+    res.write(`val1 ${si_o_no(val1Si)} es una valuaci&oacute;n.`, val1Si);
+    res.write(`val2 ${si_o_no(val2Si)} es una valuaci&oacute;n.`, val2Si);
+    res.write(`val3 ${si_o_no(val3Si)} es una valuaci&oacute;n.`, val3Si);
+    res.write(`val4 ${si_o_no(val4Si)} es una valuaci&oacute;n.`, val4Si);
+    res.write(`val5 ${si_o_no(val5Si)} es una valuaci&oacute;n.`, val5Si);
+    res.write(`val6 ${si_o_no(val6Si)} es una valuaci&oacute;n.`, val6Si);
+    res.write(`val7 ${si_o_no(val7Si)} es una valuaci&oacute;n.`, val7Si);
+    res.write(`val8 ${si_o_no(val8Si)} es una valuaci&oacute;n.`, val8Si);
+    res.write(`val9 ${si_o_no(val9Si)} es una valuaci&oacute;n.`, val9Si);
+    res.write(`val10 ${si_o_no(val10Si)} es una valuaci&oacute;n.`, val10Si);
+    res.write(`val11 ${si_o_no(val11Si)} es una valuaci&oacute;n.`, val11Si);
+    res.write(`mal1 ${si_o_no(mal1No)} es una valuaci&oacute;n.`, !mal1No);
+    res.write(`mal2 ${si_o_no(mal2No)} es una valuaci&oacute;n.`, !mal2No);
+    res.write(`mal3 ${si_o_no(mal3No)} es una valuaci&oacute;n.`, !mal3No);
+    res.write(`val16 ${si_o_no(val16Si)} es una valuaci&oacute;n.`, val16Si);
+    res.write(`val17 ${si_o_no(val17si)} es una valuaci&oacute;n.`, val17si);
+    res.write(`val18 ${si_o_no(val18No)} es una valuaci&oacute;n.`, !val18No);
+    res.write(`val19 ${si_o_no(val19Si)} es una valuaci&oacute;n.`, val19Si);
+    res.write(`val20 ${si_o_no(val20No)} es una valuaci&oacute;n.`, !val20No);
 }
 
 // Test Ejercicio 2
 function testEjercicio2(res) {
-  let union19 = union(val1, val9);
-  let union310 = union(val3, val10);
-  let union1011 = union(val10, val11);
-  let union1110 = union(val11, val10);
-  let union2122 = union(val21,val22);
-  let union2324 = union(val23,val24);
-  
-  let val1tienea = val1.a != undefined;
-  let val1tienep = val1.p != undefined;
-  let val9tienea = val9.a != undefined;
-  let val9tienep = val9.p != undefined;
-  let union19tienea = union19.a != undefined;
-  let union19tienep = union19.p != undefined;
-  let union19tieneqrbc = (union19.q != undefined) && (union19.r != undefined) && (union19.b != undefined) && (union19.c != undefined);
-  
-  let val21tienea = val21.a != undefined;
-  let val21tieneb = val21.b != undefined;
-  let val22tienec = val22.c != undefined;
-  let val22tiened = val22.d != undefined;
-  let val23tienea = val23.a != undefined;
-  let val23tieneb = val23.b != undefined;
-  let val23tienec = val23.c != undefined;
-  let val24tienea = val24.a != undefined;
-  let val24tieneb = val24.b != undefined;
-  let val24tiened = val24.d != undefined;
-  let union2122tienea = union2122.a != undefined;
-  let union2122tieneb = union2122.b != undefined;
-  let union2324tienea = union2324.a != undefined;
-  let union2324tieneb = union2324.b != undefined;
-  let union2324tienec = union2324.c != undefined;
-  let union2324tienedd = union2324.d != undefined;
-  
+    let union19 = union(val1, val9);
+    let union310 = union(val3, val10);
+    let union1011 = union(val10, val11);
+    let union1110 = union(val11, val10);
+    let union2122 = union(val21, val22);
+    let union2324 = union(val23, val24);
+
+    let val1tienea = val1.a != undefined;
+    let val1tienep = val1.p != undefined;
+    let val9tienea = val9.a != undefined;
+    let val9tienep = val9.p != undefined;
+    let union19tienea = union19.a != undefined;
+    let union19tienep = union19.p != undefined;
+    let union19tieneqrbc = (union19.q != undefined) && (union19.r != undefined) && (union19.b != undefined) && (union19.c != undefined);
+
+    let val21tienea = val21.a != undefined;
+    let val21tieneb = val21.b != undefined;
+    let val22tienec = val22.c != undefined;
+    let val22tiened = val22.d != undefined;
+    let val23tienea = val23.a != undefined;
+    let val23tieneb = val23.b != undefined;
+    let val23tienec = val23.c != undefined;
+    let val24tienea = val24.a != undefined;
+    let val24tieneb = val24.b != undefined;
+    let val24tiened = val24.d != undefined;
+    let union2122tienea = union2122.a != undefined;
+    let union2122tieneb = union2122.b != undefined;
+    let union2324tienea = union2324.a != undefined;
+    let union2324tieneb = union2324.b != undefined;
+    let union2324tienec = union2324.c != undefined;
+    let union2324tienedd = union2324.d != undefined;
 
 
-  res.write(`val1 ${si_o_no(val1tienea)} tiene la variable a.`, !val1tienea);
-  res.write(`val1 ${si_o_no(val1tienep)} tiene la variable p.`, val1tienep);
-  res.write(`val9 ${si_o_no(val9tienea)} tiene la variable a.`, val9tienea);
-  res.write(`val9 ${si_o_no(val9tienep)} tiene la variable p.`, !val9tienep);
-  res.write(`val22 ${si_o_no(val22tienec)} tiene la variable c.`, val22tienec);
-  res.write(`val22 ${si_o_no(val22tiened)} tiene la variable d.`, val22tiened);
-  res.write(`val21 ${si_o_no(val21tienea)} tiene la variable a.`, val21tienea);
-  res.write(`val21 ${si_o_no(val21tieneb)} tiene la variable b.`, val21tieneb);
-  res.write(`val23 ${si_o_no(val23tienea)} tiene la variable a.`, val23tienea);
-  res.write(`val23 ${si_o_no(val23tieneb)} tiene la variable b.`, val23tieneb);
-  res.write(`val23 ${si_o_no(val23tienec)} tiene la variable c.`, val23tienec);
-  res.write(`val24 ${si_o_no(val24tienea)} tiene la variable a.`, val24tienea);
-  res.write(`val24 ${si_o_no(val24tieneb)} tiene la variable b.`, val24tieneb);
-  res.write(`val24 ${si_o_no(val24tiened)} tiene la variable d.`, val24tiened);
 
-  res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(esValuacion(union310))} es una valuaci&oacute;n.`, esValuacion(union19));
-  res.write(`La uni&oacute;n de val3 y val10 ${si_o_no(esValuacion(union19))} es una valuaci&oacute;n.`, esValuacion(union310));
-  res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(union19tienea)} tiene la variable a.`, union19tienea);
-  res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(union19tienep)} tiene la variable p.`, union19tienep);
-  res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(union19tieneqrbc)} tiene las variables q, r, b y c.`, union19tieneqrbc);
-  res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.p} a la variable p.`, !union310.p);
-  res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.q} a la variable q.`, union310.q);
-  res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.r} a la variable r.`, union310.r);
-  res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.z} a la variable z.`, union310.z);
-  res.write(`La uni&oacute;n de val10 y val11 asigna ${union1011.r} a la variable r.`, union1011.r === false);
-  res.write(`La uni&oacute;n de val11 y val10 asigna ${union1110.q} a la variable q.`, union1110.q);
-  res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.a} a la variable a.`, union2122.a);
-  res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.b} a la variable b.`, !union2122.b);
-  res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.c} a la variable c.`, union2122.c);
-  res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.d} a la variable d.`, union2122.d);
-  res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.a} a la variable a.`, union2324.a);
-  res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.b} a la variable b.`, !union2324.b);
-  res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.c} a la variable c.`, union2324.c);
-  res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.d} a la variable d.`, !union2324.d);
+    res.write(`val1 ${si_o_no(val1tienea)} tiene la variable a.`, !val1tienea);
+    res.write(`val1 ${si_o_no(val1tienep)} tiene la variable p.`, val1tienep);
+    res.write(`val9 ${si_o_no(val9tienea)} tiene la variable a.`, val9tienea);
+    res.write(`val9 ${si_o_no(val9tienep)} tiene la variable p.`, !val9tienep);
+    res.write(`val22 ${si_o_no(val22tienec)} tiene la variable c.`, val22tienec);
+    res.write(`val22 ${si_o_no(val22tiened)} tiene la variable d.`, val22tiened);
+    res.write(`val21 ${si_o_no(val21tienea)} tiene la variable a.`, val21tienea);
+    res.write(`val21 ${si_o_no(val21tieneb)} tiene la variable b.`, val21tieneb);
+    res.write(`val23 ${si_o_no(val23tienea)} tiene la variable a.`, val23tienea);
+    res.write(`val23 ${si_o_no(val23tieneb)} tiene la variable b.`, val23tieneb);
+    res.write(`val23 ${si_o_no(val23tienec)} tiene la variable c.`, val23tienec);
+    res.write(`val24 ${si_o_no(val24tienea)} tiene la variable a.`, val24tienea);
+    res.write(`val24 ${si_o_no(val24tieneb)} tiene la variable b.`, val24tieneb);
+    res.write(`val24 ${si_o_no(val24tiened)} tiene la variable d.`, val24tiened);
 
-   
+    res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(esValuacion(union310))} es una valuaci&oacute;n.`, esValuacion(union19));
+    res.write(`La uni&oacute;n de val3 y val10 ${si_o_no(esValuacion(union19))} es una valuaci&oacute;n.`, esValuacion(union310));
+    res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(union19tienea)} tiene la variable a.`, union19tienea);
+    res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(union19tienep)} tiene la variable p.`, union19tienep);
+    res.write(`La uni&oacute;n de val1 y val9 ${si_o_no(union19tieneqrbc)} tiene las variables q, r, b y c.`, union19tieneqrbc);
+    res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.p} a la variable p.`, !union310.p);
+    res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.q} a la variable q.`, union310.q);
+    res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.r} a la variable r.`, union310.r);
+    res.write(`La uni&oacute;n de val3 y val10 asigna ${union310.z} a la variable z.`, union310.z);
+    res.write(`La uni&oacute;n de val10 y val11 asigna ${union1011.r} a la variable r.`, union1011.r === false);
+    res.write(`La uni&oacute;n de val11 y val10 asigna ${union1110.q} a la variable q.`, union1110.q);
+    res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.a} a la variable a.`, union2122.a);
+    res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.b} a la variable b.`, !union2122.b);
+    res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.c} a la variable c.`, union2122.c);
+    res.write(`La uni&oacute;n de val21 y val22 asigna ${union2122.d} a la variable d.`, union2122.d);
+    res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.a} a la variable a.`, union2324.a);
+    res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.b} a la variable b.`, !union2324.b);
+    res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.c} a la variable c.`, union2324.c);
+    res.write(`La uni&oacute;n de val23 y val24 asigna ${union2324.d} a la variable d.`, !union2324.d);
+
+
 }
 
 // Test Ejercicio 3
 function testEjercicio3(res) {
-	let prop1 = o(no(y(v("p"),v("q"))),v("r"));
-	let prop2 = no(no(v("a")));
-	let prop3 = o(y(v("p"),v("q")),y(v("r"),v("z")));
-  let prop4 = no(v("s"));
-  let prop5 = no(o(no(v("s")),v("a")));
-  let prop6 = no(y(v("s"),no(v("a"))));
+    let prop1 = o(no(y(v("p"), v("q"))), v("r"));
+    let prop2 = no(no(v("a")));
+    let prop3 = o(y(v("p"), v("q")), y(v("r"), v("z")));
+    let prop4 = no(v("s"));
+    let prop5 = no(o(no(v("s")), v("a")));
+    let prop6 = no(y(v("s"), no(v("a"))));
 
     let prop1String = "(&not;(p &and; q) &or; r)";
     let prop2String = "&not;&not;a";
@@ -313,9 +313,9 @@ function testEjercicio3(res) {
 
 // Test Ejercicio 4
 function testEjercicio4(res) {
-	let prop1 = o(no(y(v("p"),v("q"))),y(v("r"),v("q")));
-	let prop2 = no(no(v("a")));
-	let prop3 = o(y(v("p"),v("q")),y(v("r"),v("z")));
+    let prop1 = o(no(y(v("p"), v("q"))), y(v("r"), v("q")));
+    let prop2 = no(no(v("a")));
+    let prop3 = o(y(v("p"), v("q")), y(v("r"), v("z")));
     let set1 = new Set();
     let set2 = new Set();
     let set3 = new Set();
@@ -332,9 +332,9 @@ function testEjercicio4(res) {
 
 // Test Ejercicio 5
 function testEjercicio5(res) {
-	let prop1 = o(no(y(v("p"),v("q"))),y(v("r"),v("q")));
-	let prop2 = y(no(no(v("a"))), y(v("b"),no(v("c"))));
-	let prop3 = o(y(v("p"),v("q")),y(v("r"),v("z")));
+    let prop1 = o(no(y(v("p"), v("q"))), y(v("r"), v("q")));
+    let prop2 = y(no(no(v("a"))), y(v("b"), no(v("c"))));
+    let prop3 = o(y(v("p"), v("q")), y(v("r"), v("z")));
     let check11 = prop1.evaluar(val1);
     let check12 = prop1.evaluar(val2);
     let check13 = prop1.evaluar(val3);
@@ -402,8 +402,8 @@ function testEjercicio5(res) {
     res.write(`El resultado de evaluar ${prop2.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion2}.`, checkunion2 === undefined);
     res.write(`El resultado de evaluar ${prop3.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion3}.`, checkunion3 === false);
 }
-    
-    
+
+
 // Test Ejercicio 6
 function testEjercicio6(res) {
     let propa = v("a");
