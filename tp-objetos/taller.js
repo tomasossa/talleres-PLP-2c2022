@@ -440,9 +440,10 @@ function testEjercicio6(res) {
     let impl2 = cambiarOperador(impl1, "=&gt;");
     let impl3 = implica(v("p"), v("q"));
     let impl4 = implica(impl1, impl2);
+    let impl5 = implica(prop1, v("p"));
     let impl1String = "(&not;&not;a &sup; a)";
     let impl2String = "(&not;&not;a =&gt; a)";
-    let impl4String = "("+impl1String+" &sup; "+impl2String+")";
+    let impl4String = "(" + impl1String + " &sup; " + impl2String + ")";
     let impl1StringBien = impl1.toString() == impl1String;
     let impl2StringBien = impl2.toString() == impl2String;
     let impl4StringBien = impl4.toString() == impl4String;
@@ -452,6 +453,10 @@ function testEjercicio6(res) {
     let eval5 = impl3.evaluar(val5);
     let check19 = impl1.evaluar(val9);
     let check29 = impl2.evaluar(val9);
+    let check51 = impl5.evaluar(val1);
+    let check52 = impl5.evaluar(val2);
+    let check53 = impl5.evaluar(val3);
+    let check54 = impl5.evaluar(val9);
 
     res.write(`prop1String.toString() ${si_o_no(prop1StringBien)} es ${prop1String}.`, prop1StringBien);
     res.write(`prop2String.toString() ${si_o_no(prop2StringBien)} es ${prop2String}.`, prop2StringBien);
@@ -459,11 +464,16 @@ function testEjercicio6(res) {
     res.write(`impl1.toString() ${si_o_no(impl1StringBien)} es ${impl1String}.`, impl1StringBien);
     res.write(`impl2.toString() ${si_o_no(impl2StringBien)} es ${impl2String}.`, impl2StringBien);
     res.write(`impl4.toString() ${si_o_no(impl4StringBien)} es ${impl4String}.`, impl4StringBien);
-    
+
     res.write(`El resultado de evaluar ${impl3.toString()} en val1 es ${eval1}.`, eval1);
     res.write(`El resultado de evaluar ${impl3.toString()} en val2 es ${eval2}.`, eval2);
     res.write(`El resultado de evaluar ${impl3.toString()} en val3 es ${eval3}.`, eval3);
     res.write(`El resultado de evaluar ${impl3.toString()} en val5 es ${eval5}.`, !eval5);
     res.write(`El resultado de evaluar ${impl1.toString()} en val9 es ${check19}.`, check19);
     res.write(`El resultado de evaluar ${impl2.toString()} en val9 es ${check29}.`, check29);
+
+    res.write(`El resultado de evaluar ${impl5.toString()} en val1 es ${check51}.`, check51);
+    res.write(`El resultado de evaluar ${impl5.toString()} en val2 es ${check52}.`, check52);
+    res.write(`El resultado de evaluar ${impl5.toString()} en val3 es ${check53}.`, check53);
+    res.write(`El resultado de evaluar ${impl5.toString()} en val9 es ${check54}.`, check54 === undefined);
 }
