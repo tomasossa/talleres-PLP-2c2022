@@ -340,6 +340,8 @@ function testEjercicio5(res) {
     let prop1 = o(no(y(v("p"), v("q"))), y(v("r"), v("q")));
     let prop2 = y(no(no(v("a"))), y(v("b"), no(v("c"))));
     let prop3 = o(y(v("p"), v("q")), y(v("r"), v("z")));
+    let prop4 = o(o(prop1, prop2), prop3);
+    let prop5 = y(prop1, prop3);
     let check11 = prop1.evaluar(val1);
     let check12 = prop1.evaluar(val2);
     let check13 = prop1.evaluar(val3);
@@ -373,6 +375,11 @@ function testEjercicio5(res) {
     let check39 = prop3.evaluar(val9);
     let check310 = prop3.evaluar(val10);
     let checkunion3 = prop3.evaluar(union(val10, val2));
+    let check41 = prop4.evaluar(val1);
+    let check42 = prop4.evaluar(val9);
+    let check43 = prop4.evaluar(val10);
+    let checkunion4 = prop4.evaluar(union(union(val1, val9), val10));
+    let checkunion5 = prop5.evaluar(union(union(val8, val9), val10));
     res.write(`El resultado de evaluar ${prop1.toString()} en val1 es ${check11}.`, check11);
     res.write(`El resultado de evaluar ${prop1.toString()} en val2 es ${check12}.`, check12);
     res.write(`El resultado de evaluar ${prop1.toString()} en val3 es ${check13}.`, check13);
@@ -401,11 +408,16 @@ function testEjercicio5(res) {
     res.write(`El resultado de evaluar ${prop3.toString()} en val6 es ${check36}.`, check36 === undefined);
     res.write(`El resultado de evaluar ${prop3.toString()} en val7 es ${check37}.`, check37 === undefined);
     res.write(`El resultado de evaluar ${prop3.toString()} en val8 es ${check38}.`, check38 === undefined);
-    res.write(`El resultado de evaluar ${prop3.toString()} en val1 es ${check39}.`, check39 === undefined);
-    res.write(`El resultado de evaluar ${prop3.toString()} en val1 es ${check310}.`, check310 === undefined);
+    res.write(`El resultado de evaluar ${prop3.toString()} en val9 es ${check39}.`, check39 === undefined);
+    res.write(`El resultado de evaluar ${prop3.toString()} en val10 es ${check310}.`, check310 === undefined);
+    res.write(`El resultado de evaluar ${prop4.toString()} en val1 es ${check41}.`, check41 === undefined);
+    res.write(`El resultado de evaluar ${prop4.toString()} en val9 es ${check42}.`, check42 === undefined);
+    res.write(`El resultado de evaluar ${prop4.toString()} en val10 es ${check43}.`, check43 === undefined);
     res.write(`El resultado de evaluar ${prop1.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion1}.`, checkunion1);
     res.write(`El resultado de evaluar ${prop2.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion2}.`, checkunion2 === undefined);
     res.write(`El resultado de evaluar ${prop3.toString()} en la uni&oacute;n de val10 y val2 es ${checkunion3}.`, checkunion3 === false);
+    res.write(`El resultado de evaluar ${prop4.toString()} en la uni&oacute;n de val1 y val9 y val 10 es ${checkunion4}.`, checkunion4);
+    res.write(`El resultado de evaluar ${prop5.toString()} en la uni&oacute;n de val8 y val9 y val 10 es ${checkunion5}.`, checkunion5 == false);
 }
 
 
