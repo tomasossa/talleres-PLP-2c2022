@@ -27,6 +27,15 @@ adyacenteEnRango(T,F1,C1,F2,C2) :- adyacente(F1,C1,F2,C2), enRango(T,F2,C2).
 contenido(T, F, C, E) :- nth1(F, T, Fila), nth1(C, Fila, E).
 
 %disponible(+Tablero, ?Fila, ?Columna)
+disponible(T, F, C) :- disponibleCelda(T, F, C), not(algunaAdyacenteOcupada(T, F, C)).
+
+%disponibleCelda(+Tablero, ?Fila, ?Columna)
+% disponibleCelda tiene éxito si la celda tiene una variable no instanciada. 
+disponibleCelda(T, F, C) :- contenido(T, F, C, E), var(E).
+
+%algunaAdyacenteOcupada(+Tablero, +Fila, +Columna)
+% algunaAdyacenteOcupada tiene éxito si alguna celda adyacente a T[F, C] está ocupada.
+algunaAdyacenteOcupada(T, F, C) :- adyacenteEnRango(T, F, C, F1, C1), not(disponibleCelda(T, F1, C1)).
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
 
@@ -53,4 +62,15 @@ test(7) :- setof((C,E), contenido([[o, x, o], [o, o, x]], 2, C, E), [ (1, o), (2
 test(8) :- setof(F, contenido([[o, x, o], [o, o, x]], F, 1, o), [ 1, 2 ]).
 test(9) :- setof((F,C,E), contenido([[o, _, x], [o, _, _]], F, C, E), [(1, 1, o), (1, 2, _), (1, 3, x), (2, 1, o), (2, 2, _), (2, 3, _)]).
 
-tests :- forall(between(1,9,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+% Tests disponible
+test(10) :- not(disponibleCelda([[o, _], [_, _]], 1, 1)).
+test(11) :- disponibleCelda([[o, _], [_, _]], 2, 1).
+test(12) :- setof((F,C), disponibleCelda([[o, _], [_, x]], F, C), [ (1, 2), (2, 1) ]).
+test(13) :- algunaAdyacenteOcupada([[_, _, _], [o, _, _], [_, _, _]], 2, 2).
+test(14) :- not(algunaAdyacenteOcupada([[_, _, _], [_, o, _], [_, _, _]], 2, 2)).
+test(15) :- not(disponible([[_, _, _], [_, o, _], [_, _, _]], 2, 2)).
+test(16) :- not(disponible([[o, _, _], [_, _, _], [_, _, _]], 2, 2)).
+test(17) :- disponible([[_, _, _], [_, _, _], [_, _, _]], 2, 2).
+test(18) :- setof((F, C), (matriz(M,2,2), disponible(M, F, C)), [(1,1), (1,2), (2,1), (2,2)]).
+
+tests :- forall(between(1,18,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
