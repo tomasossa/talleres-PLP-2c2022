@@ -38,7 +38,10 @@ disponibleCelda(T, F, C) :- contenido(T, F, C, E), var(E).
 algunaAdyacenteOcupada(T, F, C) :- adyacenteEnRango(T, F, C, F1, C1), not(disponibleCelda(T, F1, C1)).
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
-% puedoColocar(P, D, T, F, C) :- 
+puedoColocar(1, _, T, F, C) :- disponible(T, F, C).
+puedoColocar(P, D, T, F, C) :- nonvar(D), P > 1, P1 is P - 1, disponible(T, F, C), proxima(D, T, F, C, FProx, CProx), puedoColocar(P1, D, T, FProx, CProx).
+puedoColocar(P, D, T, F, C) :- var(D), D = horizontal, puedoColocar(P, D, T, F, C).
+puedoColocar(P, D, T, F, C) :- var(D), D = vertical,  puedoColocar(P, D, T, F, C).
 
 %proxima(+Direccion, +Tablero, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
 % tiene éxito si ProximaFila y ProximaColumna son las posiciones de la próxima celda,
@@ -73,8 +76,10 @@ test(9) :- setof((F,C,E), contenido([[o, _, x], [o, _, _]], F, C, E), [(1, 1, o)
 test(10) :- not(disponibleCelda([[o, _], [_, _]], 1, 1)).
 test(11) :- disponibleCelda([[o, _], [_, _]], 2, 1).
 test(12) :- setof((F,C), disponibleCelda([[o, _], [_, x]], F, C), [ (1, 2), (2, 1) ]).
+
 test(13) :- algunaAdyacenteOcupada([[_, _, _], [o, _, _], [_, _, _]], 2, 2).
 test(14) :- not(algunaAdyacenteOcupada([[_, _, _], [_, o, _], [_, _, _]], 2, 2)).
+
 test(15) :- not(disponible([[_, _, _], [_, o, _], [_, _, _]], 2, 2)).
 test(16) :- not(disponible([[o, _, _], [_, _, _], [_, _, _]], 2, 2)).
 test(17) :- matriz(M,3,3), disponible(M, 2, 2).
@@ -86,5 +91,12 @@ test(20) :- matriz(M,3,3), proxima(horizontal, M, 2, 2, F, C), F is 2, C is 3.
 test(21) :- matriz(M,3,3), not(proxima(horizontal, M, 3, 3, _, _)).
 test(22) :- matriz(M,3,3), not(proxima(vertical, M, 3, 3, _, _)).
 
+test(23) :- matriz(M,3,3), puedoColocar(1, horizontal, M, 1, 1).
+test(24) :- matriz(M,3,3), puedoColocar(2, horizontal, M, 2, 2).
+test(25) :- matriz(M,3,3), puedoColocar(2, vertical, M, 2, 2).
+test(26) :- matriz(M,3,3), not(puedoColocar(3, vertical, M, 2, 2)).
+test(27) :- matriz(M,2,4), setof((Dir, F, C), puedoColocar(3,Dir,M,F,C), [(horizontal,1,1), (horizontal,1,2), (horizontal,2,1), (horizontal,2,2)]).
+test(28) :- matriz(M,2,3), contenido(M,2,1,o), setof((Dir, F, C), puedoColocar(2,Dir,M,F,C), [(vertical,1,3)]).
 
-tests :- forall(between(1,22,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+
+tests :- forall(between(1,28,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
