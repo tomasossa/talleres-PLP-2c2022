@@ -70,7 +70,7 @@ test(13) :- algunaAdyacenteOcupada([[_, _, _], [o, _, _], [_, _, _]], 2, 2).
 test(14) :- not(algunaAdyacenteOcupada([[_, _, _], [_, o, _], [_, _, _]], 2, 2)).
 test(15) :- not(disponible([[_, _, _], [_, o, _], [_, _, _]], 2, 2)).
 test(16) :- not(disponible([[o, _, _], [_, _, _], [_, _, _]], 2, 2)).
-test(17) :- disponible([[_, _, _], [_, _, _], [_, _, _]], 2, 2).
+test(17) :- matriz(M,3,3), disponible(M, 2, 2).
 test(18) :- setof((F, C), (matriz(M,2,2), disponible(M, F, C)), [(1,1), (1,2), (2,1), (2,2)]).
 
 tests :- forall(between(1,18,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
