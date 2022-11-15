@@ -47,9 +47,10 @@ test(2) :- matriz(M,2,3), setof((F,C), adyacenteEnRango(M,1,1,F,C), [ (1, 2), (2
 % Tests contenido
 test(3) :- contenido([[o, _], [_, _]], 1, 1, o).
 test(4) :- contenido([[_, _], [_, o]], 2, 2, o).
-test(5) :- setof(C, contenido([[o, x, o], [o, o, x]], 1, C, o), [1, 3]).
-test(6) :- setof((C,E), contenido([[o, x, o], [o, o, x]], 2, C, E), [ (1, o), (2, o), (3, x) ]).
-test(7) :- setof(F, contenido([[o, x, o], [o, o, x]], F, 1, o), [ 1, 2 ]).
-test(8) :- setof((F,C,E), contenido([[o, _, x], [o, _, _]], F, C, E), [(1, 1, o), (1, 2, _), (1, 3, x), (2, 1, o), (2, 2, _), (2, 3, _)]).
+test(5) :- contenido([[X, Y], [x, o]], _, _, o), X = o, Y = o.
+test(6) :- setof(C, contenido([[o, x, o], [o, o, x]], 1, C, o), [1, 3]).
+test(7) :- setof((C,E), contenido([[o, x, o], [o, o, x]], 2, C, E), [ (1, o), (2, o), (3, x) ]).
+test(8) :- setof(F, contenido([[o, x, o], [o, o, x]], F, 1, o), [ 1, 2 ]).
+test(9) :- setof((F,C,E), contenido([[o, _, x], [o, _, _]], F, C, E), [(1, 1, o), (1, 2, _), (1, 3, x), (2, 1, o), (2, 2, _), (2, 3, _)]).
 
-tests :- forall(between(1,8,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+tests :- forall(between(1,9,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
