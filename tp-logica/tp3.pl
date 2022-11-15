@@ -38,6 +38,13 @@ disponibleCelda(T, F, C) :- contenido(T, F, C, E), var(E).
 algunaAdyacenteOcupada(T, F, C) :- adyacenteEnRango(T, F, C, F1, C1), not(disponibleCelda(T, F1, C1)).
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
+% puedoColocar(P, D, T, F, C) :- 
+
+%proxima(+Direccion, +Tablero, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
+% tiene éxito si ProximaFila y ProximaColumna son las posiciones de la próxima celda,
+% en direccion Direccion, desde [Fila,Columna], y están en rango
+proxima(vertical, T, F, C, F1, C) :- F1 is F + 1, enRango(T, F1, C).
+proxima(horizontal, T, F, C, F, C1) :- C1 is C + 1, enRango(T, F, C1).
 
 %ubicarBarcos(+Barcos, +?Tablero)
 
@@ -73,4 +80,11 @@ test(16) :- not(disponible([[o, _, _], [_, _, _], [_, _, _]], 2, 2)).
 test(17) :- matriz(M,3,3), disponible(M, 2, 2).
 test(18) :- setof((F, C), (matriz(M,2,2), disponible(M, F, C)), [(1,1), (1,2), (2,1), (2,2)]).
 
-tests :- forall(between(1,18,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+% Tests puedoColocar
+test(19) :- matriz(M,3,3), proxima(vertical, M, 1, 1, F, C), F is 2, C is 1.
+test(20) :- matriz(M,3,3), proxima(horizontal, M, 2, 2, F, C), F is 2, C is 3.
+test(21) :- matriz(M,3,3), not(proxima(horizontal, M, 3, 3, _, _)).
+test(22) :- matriz(M,3,3), not(proxima(vertical, M, 3, 3, _, _)).
+
+
+tests :- forall(between(1,22,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
