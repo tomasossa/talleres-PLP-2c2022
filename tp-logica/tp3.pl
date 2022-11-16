@@ -61,7 +61,14 @@ ubicarBarco(P, D, T, F, C) :- contenido(T, F, C, o), P > 1, P1 is P - 1, proxima
 ubicarBarcos([], _).
 ubicarBarcos([Barco|Barcos], T) :- puedoColocar(Barco, D, T, F, C), ubicarBarco(Barco, D, T, F, C), ubicarBarcos(Barcos, T).
 
+%completarFilaConAgua(+Fila)
+% Completa la fila con el átomo correspondiente al átomo de agua.
+completarFilaConAgua([]).
+completarFilaConAgua([Celda|Celdas]) :- nonvar(Celda), completarFilaConAgua(Celdas).
+completarFilaConAgua([~|Celdas]) :- completarFilaConAgua(Celdas).
+
 %completarConAgua(+?Tablero)
+completarConAgua(T) :- maplist(completarFilaConAgua, T).
 
 %golpear(+Tablero, +NumFila, +NumColumna, -NuevoTab)
 
