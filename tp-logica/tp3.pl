@@ -26,9 +26,6 @@ adyacenteEnRango(T,F1,C1,F2,C2) :- adyacente(F1,C1,F2,C2), enRango(T,F2,C2).
 %contenido(+?Tablero, ?Fila, ?Columna, ?Contenido)
 contenido(T, F, C, E) :- nth1(F, T, Fila), nth1(C, Fila, E).
 
-%disponible(+Tablero, ?Fila, ?Columna)
-disponible(T, F, C) :- disponibleCelda(T, F, C), not(algunaAdyacenteOcupada(T, F, C)).
-
 %disponibleCelda(+Tablero, ?Fila, ?Columna)
 % disponibleCelda tiene éxito si la celda tiene una variable no instanciada. 
 disponibleCelda(T, F, C) :- contenido(T, F, C, E), var(E).
@@ -37,17 +34,22 @@ disponibleCelda(T, F, C) :- contenido(T, F, C, E), var(E).
 % algunaAdyacenteOcupada tiene éxito si alguna celda adyacente a T[F, C] está ocupada.
 algunaAdyacenteOcupada(T, F, C) :- adyacenteEnRango(T, F, C, F1, C1), not(disponibleCelda(T, F1, C1)).
 
-%puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
-puedoColocar(1, _, T, F, C) :- disponible(T, F, C).
-puedoColocar(P, D, T, F, C) :- nonvar(D), P > 1, P1 is P - 1, disponible(T, F, C), proxima(D, T, F, C, FProx, CProx), puedoColocar(P1, D, T, FProx, CProx).
-puedoColocar(P, D, T, F, C) :- var(D), D = horizontal, puedoColocar(P, D, T, F, C).
-puedoColocar(P, D, T, F, C) :- var(D), D = vertical,  puedoColocar(P, D, T, F, C).
+%disponible(+Tablero, ?Fila, ?Columna)
+disponible(T, F, C) :- disponibleCelda(T, F, C), not(algunaAdyacenteOcupada(T, F, C)).
+
+
+direccion(horizontal).
+direccion(vertical).
 
 %proxima(+Direccion, +Tablero, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
 % tiene éxito si ProximaFila y ProximaColumna son las posiciones de la próxima celda,
 % en direccion Direccion, desde [Fila,Columna], y están en rango
 proxima(vertical, T, F, C, F1, C) :- F1 is F + 1, enRango(T, F1, C).
 proxima(horizontal, T, F, C, F, C1) :- C1 is C + 1, enRango(T, F, C1).
+
+%puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
+puedoColocar(1, D, T, F, C) :- direccion(D), disponible(T, F, C).
+puedoColocar(P, D, T, F, C) :- direccion(D), P > 1, P1 is P - 1, disponible(T, F, C), proxima(D, T, F, C, FProx, CProx), puedoColocar(P1, D, T, FProx, CProx).
 
 %ubicarBarcos(+Barcos, +?Tablero)
 
