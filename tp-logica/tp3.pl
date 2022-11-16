@@ -48,10 +48,18 @@ proxima(vertical, T, F, C, F1, C) :- F1 is F + 1, enRango(T, F1, C).
 proxima(horizontal, T, F, C, F, C1) :- C1 is C + 1, enRango(T, F, C1).
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
-puedoColocar(1, D, T, F, C) :- direccion(D), disponible(T, F, C).
+puedoColocar(1, _, T, F, C) :- disponible(T, F, C).
 puedoColocar(P, D, T, F, C) :- direccion(D), P > 1, P1 is P - 1, disponible(T, F, C), proxima(D, T, F, C, FProx, CProx), puedoColocar(P1, D, T, FProx, CProx).
 
+%ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
+% ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
+% en un tablero parcialmente instanciado. No se verifica que es posible colocar un barco
+ubicarBarco(1, _, T, F, C) :- contenido(T, F, C, o).
+ubicarBarco(P, D, T, F, C) :- contenido(T, F, C, o), P > 1, P1 is P - 1, proxima(D, T, F, C, FProx, CProx), ubicarBarco(P1, D, T, FProx, CProx).
+
 %ubicarBarcos(+Barcos, +?Tablero)
+ubicarBarcos([], _).
+ubicarBarcos([Barco|Barcos], T) :- puedoColocar(Barco, D, T, F, C), ubicarBarco(Barco, D, T, F, C), ubicarBarcos(Barcos, T).
 
 %completarConAgua(+?Tablero)
 
@@ -61,6 +69,12 @@ puedoColocar(P, D, T, F, C) :- direccion(D), P > 1, P1 is P - 1, disponible(T, F
 %atacar(Tablero, Fila, Columna, Resultado, NuevoTab)
 
 %------------------Tests:------------------%
+
+%ocupadaPor(+Tablero, +Fila, +Columna, +Contenido)
+% ocupadaPor tiene éxito si el tablero tiene el contenido de Contenido en Fila y Columna.
+ocupadaPor(T, F, C, E) :- not(disponibleCelda(T, F, C)), contenido(T, F, C, E).
+
+ocupadaPorBarco(T, F, C) :- ocupadaPor(T, F, C, o).
 
 test(1) :- matriz(M,2,3), adyacenteEnRango(M,2,2,2,3).
 test(2) :- matriz(M,2,3), setof((F,C), adyacenteEnRango(M,1,1,F,C), [ (1, 2), (2, 1), (2, 2)]).
@@ -100,5 +114,18 @@ test(26) :- matriz(M,3,3), not(puedoColocar(3, vertical, M, 2, 2)).
 test(27) :- matriz(M,2,4), setof((Dir, F, C), puedoColocar(3,Dir,M,F,C), [(horizontal,1,1), (horizontal,1,2), (horizontal,2,1), (horizontal,2,2)]).
 test(28) :- matriz(M,2,3), contenido(M,2,1,o), setof((Dir, F, C), puedoColocar(2,Dir,M,F,C), [(vertical,1,3)]).
 
+% Tests ubicarBarcos
+test(29) :- matriz(M,3,3), contenido(M, 1, 1, o), ocupadaPor(M, 1, 1, o).
+test(30) :- matriz(M,3,3), contenido(M, 1, 1, o), not(ocupadaPor(M, 1, 1, x)).
+test(31) :- matriz(M,3,3), not(ocupadaPor(M, 1, 1, o)).
 
-tests :- forall(between(1,28,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+test(32) :- matriz(M,3,3), ubicarBarco(2, vertical, M, 1, 1), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 2, 1).
+test(33) :- matriz(M,2,4), ubicarBarco(3, horizontal, M, 2, 2), ocupadaPorBarco(M, 2, 2), ocupadaPorBarco(M, 2, 3), ocupadaPorBarco(M, 2, 4).
+
+test(34) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1).
+test(35) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 2).
+test(36) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+test(37) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+
+
+tests :- forall(between(1,37,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
