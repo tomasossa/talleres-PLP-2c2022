@@ -70,7 +70,18 @@ completarFilaConAgua([~|Celdas]) :- completarFilaConAgua(Celdas).
 %completarConAgua(+?Tablero)
 completarConAgua(T) :- maplist(completarFilaConAgua, T).
 
+% completarFilaGolpeada(+Tablero, +?Nuevo, +NumFila, +NumColumna)
+% completarFilaGolpeada llena la fila golpeada de Nuevo con contenido de Tablero, teniendo en cuenta
+% que fue golpeado en NumFila, NumColumna
+completarFilaGolpeada(Tablero, Nuevo, NumFila, NumColumna) :- nth1(NumFila, Tablero, FilaGolpeada), nth1(NumFila, Nuevo, FilaGolpeadaNuevo), Col is NumColumna - 1, append(F1, [_|F2], FilaGolpeada), length(F1, Col), append(F1, [~|F2], FilaGolpeadaNuevo).
+
+% llenarLibresCon(+Tablero, +?Nuevo, +NumFila, +NumColumna)
+% llenarLibresCon llena el nuevo tablero con el contenido de Tablero, teniendo en cuenta
+% que fue golpeado en NumFila, NumColumna
+llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna) :- completarFilaGolpeada(Tablero, Nuevo, NumFila, NumColumna), F is NumFila - 1, append(F1, [_|F2], Tablero), length(F1, F), append(F1, [_|F2], Nuevo).
+
 %golpear(+Tablero, +NumFila, +NumColumna, -NuevoTab)
+golpear(Tablero, NumFila, NumColumna, Nuevo) :- matriz(Tablero, FMax, CMax), matriz(Nuevo, FMax, CMax), contenido(Nuevo, NumFila, NumColumna, ~), llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna).
 
 % Completar instanciación soportada y justificar.
 %atacar(Tablero, Fila, Columna, Resultado, NuevoTab)
@@ -134,5 +145,13 @@ test(35) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocup
 test(36) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
 test(37) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
 
+% Tests completarConAgua
 
-tests :- forall(between(1,37,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+% Tests golpear
+
+test(38) :- T = [[o, o], [~, ~], [~, o]], golpear(T, 2, 2, M), M = T.
+
+tests :- forall(between(1,38,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+
+
+% T = [[o, o], [~, ~], [~, o]], M = [[_, _], [_, ~], [_, _]]
