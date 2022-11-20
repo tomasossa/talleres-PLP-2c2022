@@ -83,8 +83,22 @@ llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna) :- completarFilaGolpeada(Ta
 %golpear(+Tablero, +NumFila, +NumColumna, -NuevoTab)
 golpear(Tablero, NumFila, NumColumna, Nuevo) :- matriz(Tablero, FMax, CMax), matriz(Nuevo, FMax, CMax), contenido(Nuevo, NumFila, NumColumna, ~), llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna).
 
+
+%tocado(+Tablero, +NumFila, +NumColumna)
+% Es verdadero cuando el barco que tiene una parte en (NumFila, NumColumna) no está hundido,
+% teniendo en cuenta que fue golpeado en (NumFila, NumColumna)
+tocado(Tablero, NumFila, NumColumna) :- adyacenteEnRango(Tablero, NumFila, NumColumna, F, C), contenido(Tablero, F, C, o).
+
 % Completar instanciación soportada y justificar.
-%atacar(Tablero, Fila, Columna, Resultado, NuevoTab)
+%atacar(+Tablero, ?NumFila, ?NumColumna, ?Resultado, -NuevoTab)
+% Tablero debe estar instanciado por las restricciones de golpear, que requiere un Tablero instanciado.
+% NumFila y NumColumna podrían no estar intanciados, porque contenido lo soporta e instancia fila y columna en caso de no estarlo.
+% Como es lo primero que se consulta en cada caso, no habría error con los próximos predicados.
+% Resultado podría estar instanciado: como atacar está definido por casos en Resultado, se unificará con el átomo correspondiente, sin errores.
+% NuevoTab no puede estar instanciado por las restricciones del predicado golpear
+atacar(Tablero, NumFila, NumColumna, agua, Nuevo) :- contenido(Tablero, NumFila, NumColumna, ~), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, tocado, Nuevo) :- contenido(Tablero, NumFila, NumColumna, o), tocado(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, hundido, Nuevo) :- contenido(Tablero, NumFila, NumColumna, o), not(tocado(Tablero, NumFila, NumColumna)), golpear(Tablero, NumFila, NumColumna, Nuevo).
 
 %------------------Tests:------------------%
 
