@@ -24,18 +24,18 @@ adyacenteEnRango(T,F1,C1,F2,C2) :- adyacente(F1,C1,F2,C2), enRango(T,F2,C2).
 %------------------Predicados a definir:------------------%
 
 %contenido(+?Tablero, ?Fila, ?Columna, ?Contenido)
-contenido(T, F, C, E) :- nth1(F, T, Fila), nth1(C, Fila, E).
+contenido(Tablero, F, C, E) :- nth1(F, Tablero, Fila), nth1(C, Fila, E).
 
 %disponibleCelda(+Tablero, ?Fila, ?Columna)
 % disponibleCelda tiene éxito si la celda tiene una variable no instanciada. 
-disponibleCelda(T, F, C) :- contenido(T, F, C, E), var(E).
+disponibleCelda(Tablero, F, C) :- contenido(Tablero, F, C, E), var(E).
 
 %algunaAdyacenteOcupada(+Tablero, +Fila, +Columna)
 % algunaAdyacenteOcupada tiene éxito si alguna celda adyacente a T[F, C] está ocupada.
-algunaAdyacenteOcupada(T, F, C) :- adyacenteEnRango(T, F, C, F1, C1), not(disponibleCelda(T, F1, C1)).
+algunaAdyacenteOcupada(Tablero, F, C) :- adyacenteEnRango(Tablero, F, C, F1, C1), not(disponibleCelda(Tablero, F1, C1)).
 
 %disponible(+Tablero, ?Fila, ?Columna)
-disponible(T, F, C) :- disponibleCelda(T, F, C), not(algunaAdyacenteOcupada(T, F, C)).
+disponible(Tablero, F, C) :- disponibleCelda(Tablero, F, C), not(algunaAdyacenteOcupada(Tablero, F, C)).
 
 
 direccion(horizontal).
@@ -44,22 +44,22 @@ direccion(vertical).
 %proxima(+Direccion, +Tablero, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
 % tiene éxito si ProximaFila y ProximaColumna son las posiciones de la próxima celda,
 % en direccion Direccion, desde [Fila,Columna], y están en rango
-proxima(vertical, T, F, C, F1, C) :- F1 is F + 1, enRango(T, F1, C).
-proxima(horizontal, T, F, C, F, C1) :- C1 is C + 1, enRango(T, F, C1).
+proxima(vertical, Tablero, F, C, F1, C) :- F1 is F + 1, enRango(Tablero, F1, C).
+proxima(horizontal, Tablero, F, C, F, C1) :- C1 is C + 1, enRango(Tablero, F, C1).
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
-puedoColocar(1, _, T, F, C) :- disponible(T, F, C).
-puedoColocar(P, D, T, F, C) :- direccion(D), P > 1, P1 is P - 1, disponible(T, F, C), proxima(D, T, F, C, FProx, CProx), puedoColocar(P1, D, T, FProx, CProx).
+puedoColocar(1, _, Tablero, F, C) :- disponible(Tablero, F, C).
+puedoColocar(P, Dir, Tablero, F, C) :- direccion(Dir), P > 1, P1 is P - 1, disponible(Tablero, F, C), proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(P1, Dir, Tablero, FProx, CProx).
 
 %ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
 % ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
 % en un tablero parcialmente instanciado. No se verifica que es posible colocar un barco
-ubicarBarco(1, _, T, F, C) :- contenido(T, F, C, o).
-ubicarBarco(P, D, T, F, C) :- contenido(T, F, C, o), P > 1, P1 is P - 1, proxima(D, T, F, C, FProx, CProx), ubicarBarco(P1, D, T, FProx, CProx).
+ubicarBarco(1, _, Tablero, F, C) :- contenido(Tablero, F, C, o).
+ubicarBarco(P, Dir, Tablero, F, C) :- contenido(Tablero, F, C, o), P > 1, P1 is P - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(P1, Dir, Tablero, FProx, CProx).
 
 %ubicarBarcos(+Barcos, +?Tablero)
 ubicarBarcos([], _).
-ubicarBarcos([Barco|Barcos], T) :- puedoColocar(Barco, D, T, F, C), ubicarBarco(Barco, D, T, F, C), ubicarBarcos(Barcos, T).
+ubicarBarcos([Barco|Barcos], Tablero) :- puedoColocar(Barco, Dir, Tablero, F, C), ubicarBarco(Barco, Dir, Tablero, F, C), ubicarBarcos(Barcos, Tablero).
 
 %completarFilaConAgua(+Fila)
 % Completa la fila con el átomo correspondiente al átomo de agua.
@@ -68,7 +68,7 @@ completarFilaConAgua([Celda|Celdas]) :- nonvar(Celda), completarFilaConAgua(Celd
 completarFilaConAgua([~|Celdas]) :- completarFilaConAgua(Celdas).
 
 %completarConAgua(+?Tablero)
-completarConAgua(T) :- maplist(completarFilaConAgua, T).
+completarConAgua(Tablero) :- maplist(completarFilaConAgua, Tablero).
 
 % completarFilaGolpeada(+Tablero, +?Nuevo, +NumFila, +NumColumna)
 % completarFilaGolpeada llena la fila golpeada de Nuevo con contenido de Tablero, teniendo en cuenta
@@ -151,7 +151,7 @@ test(37) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 2), ocup
 
 test(38) :- T = [[o, o], [~, ~], [~, o]], golpear(T, 2, 2, M), M = T.
 
-tests :- forall(between(1,38,N), test(N)). % Cambiar el 2 por la cantidad de tests que tengan.
+tests :- forall(between(1,38,N), test(N)).
 
 
 % T = [[o, o], [~, ~], [~, o]], M = [[_, _], [_, ~], [_, _]]
