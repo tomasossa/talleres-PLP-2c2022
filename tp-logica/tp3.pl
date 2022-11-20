@@ -24,11 +24,11 @@ adyacenteEnRango(T,F1,C1,F2,C2) :- adyacente(F1,C1,F2,C2), enRango(T,F2,C2).
 %------------------Predicados a definir:------------------%
 
 %contenido(+?Tablero, ?Fila, ?Columna, ?Contenido)
-contenido(Tablero, F, C, E) :- nth1(F, Tablero, Fila), nth1(C, Fila, E).
+contenido(Tablero, F, C, Contenido) :- nth1(F, Tablero, Fila), nth1(C, Fila, Contenido).
 
 %disponibleCelda(+Tablero, ?Fila, ?Columna)
 % disponibleCelda tiene éxito si la celda tiene una variable no instanciada. 
-disponibleCelda(Tablero, F, C) :- contenido(Tablero, F, C, E), var(E).
+disponibleCelda(Tablero, F, C) :- contenido(Tablero, F, C, Contenido), var(Contenido).
 
 %algunaAdyacenteOcupada(+Tablero, +Fila, +Columna)
 % algunaAdyacenteOcupada tiene éxito si alguna celda adyacente a T[F, C] está ocupada.
@@ -49,13 +49,13 @@ proxima(horizontal, Tablero, F, C, F, C1) :- C1 is C + 1, enRango(Tablero, F, C1
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
 puedoColocar(1, _, Tablero, F, C) :- disponible(Tablero, F, C).
-puedoColocar(P, Dir, Tablero, F, C) :- direccion(Dir), P > 1, P1 is P - 1, disponible(Tablero, F, C), proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(P1, Dir, Tablero, FProx, CProx).
+puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), Piezas > 1, Faltantes is Piezas - 1, disponible(Tablero, F, C), proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(Faltantes, Dir, Tablero, FProx, CProx).
 
 %ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
 % ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
 % en un tablero parcialmente instanciado. No se verifica que es posible colocar un barco
 ubicarBarco(1, _, Tablero, F, C) :- contenido(Tablero, F, C, o).
-ubicarBarco(P, Dir, Tablero, F, C) :- contenido(Tablero, F, C, o), P > 1, P1 is P - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(P1, Dir, Tablero, FProx, CProx).
+ubicarBarco(Piezas, Dir, Tablero, F, C) :- contenido(Tablero, F, C, o), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(Faltantes, Dir, Tablero, FProx, CProx).
 
 %ubicarBarcos(+Barcos, +?Tablero)
 ubicarBarcos([], _).
