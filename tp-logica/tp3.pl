@@ -26,6 +26,14 @@ adyacenteEnRango(T,F1,C1,F2,C2) :- adyacente(F1,C1,F2,C2), enRango(T,F2,C2).
 %contenido(+?Tablero, ?Fila, ?Columna, ?Contenido)
 contenido(Tablero, F, C, Contenido) :- nth1(F, Tablero, Fila), nth1(C, Fila, Contenido).
 
+%barco(+?Tablero, ?Fila, ?Columna)
+% Como contenido, pero fijado el átomo correspondiente a un barco
+barco(Tablero, F, C) :- contenido(Tablero, F, C, o).
+
+%agua(+?Tablero, ?Fila, ?Columna)
+% Como contenido, pero fijado el átomo correspondiente a agua
+agua(Tablero, F, C) :- contenido(Tablero, F, C, ~).
+
 %disponibleCelda(+Tablero, ?Fila, ?Columna)
 % disponibleCelda tiene éxito si la celda tiene una variable no instanciada. 
 disponibleCelda(Tablero, F, C) :- contenido(Tablero, F, C, Contenido), var(Contenido).
@@ -54,13 +62,13 @@ puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), Piezas > 1, Faltante
 %ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
 % ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
 % en un tablero parcialmente instanciado. No se verifica que es posible colocar un barco
-ubicarBarco(1, _, Tablero, F, C) :- contenido(Tablero, F, C, o).
-ubicarBarco(Piezas, Dir, Tablero, F, C) :- contenido(Tablero, F, C, o), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(Faltantes, Dir, Tablero, FProx, CProx).
+ubicarBarco(1, _, Tablero, F, C) :- barco(Tablero, F, C).
+ubicarBarco(Piezas, Dir, Tablero, F, C) :- barco(Tablero, F, C), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(Faltantes, Dir, Tablero, FProx, CProx).
 
 %ubicarBarcoEn(+?Tablero, +CantPiezas)
 % ubica un barco de CantPiezas en un tablero parcialmente instanciado.
 % Nota: sin separar este caso, usando puedoColocar se obtienen soluciones repetidas
-ubicarBarcoEn(Tablero, 1) :- disponible(Tablero, F, C), contenido(Tablero, F, C, o).
+ubicarBarcoEn(Tablero, 1) :- disponible(Tablero, F, C), barco(Tablero, F, C).
 ubicarBarcoEn(Tablero, CantPiezas) :- CantPiezas > 1, puedoColocar(CantPiezas, Dir, Tablero, F, C), ubicarBarco(CantPiezas, Dir, Tablero, F, C).
 
 %ubicarBarcos(+Barcos, +?Tablero)
@@ -86,13 +94,13 @@ completarFilaGolpeada(Tablero, Nuevo, NumFila, NumColumna) :- nth1(NumFila, Tabl
 llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna) :- completarFilaGolpeada(Tablero, Nuevo, NumFila, NumColumna), F is NumFila - 1, append(F1, [_|F2], Tablero), length(F1, F), append(F1, [_|F2], Nuevo).
 
 %golpear(+Tablero, +NumFila, +NumColumna, -NuevoTab)
-golpear(Tablero, NumFila, NumColumna, Nuevo) :- matriz(Tablero, FMax, CMax), matriz(Nuevo, FMax, CMax), contenido(Nuevo, NumFila, NumColumna, ~), llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna).
+golpear(Tablero, NumFila, NumColumna, Nuevo) :- matriz(Tablero, FMax, CMax), matriz(Nuevo, FMax, CMax), agua(Nuevo, NumFila, NumColumna), llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna).
 
 
 %tocado(+Tablero, +NumFila, +NumColumna)
 % Es verdadero cuando el barco que tiene una parte en (NumFila, NumColumna) no está hundido,
 % teniendo en cuenta que fue golpeado en (NumFila, NumColumna)
-tocado(Tablero, NumFila, NumColumna) :- adyacenteEnRango(Tablero, NumFila, NumColumna, F, C), contenido(Tablero, F, C, o).
+tocado(Tablero, NumFila, NumColumna) :- adyacenteEnRango(Tablero, NumFila, NumColumna, F, C), barco(Tablero, F, C).
 
 % Completar instanciación soportada y justificar.
 %atacar(+Tablero, ?NumFila, ?NumColumna, ?Resultado, -NuevoTab)
@@ -101,9 +109,9 @@ tocado(Tablero, NumFila, NumColumna) :- adyacenteEnRango(Tablero, NumFila, NumCo
 % Como es lo primero que se consulta en cada caso, no habría error con los próximos predicados.
 % Resultado podría estar instanciado: como atacar está definido por casos en Resultado, se unificará con el átomo correspondiente, sin errores.
 % NuevoTab no puede estar instanciado por las restricciones del predicado golpear
-atacar(Tablero, NumFila, NumColumna, agua, Nuevo) :- contenido(Tablero, NumFila, NumColumna, ~), golpear(Tablero, NumFila, NumColumna, Nuevo).
-atacar(Tablero, NumFila, NumColumna, tocado, Nuevo) :- contenido(Tablero, NumFila, NumColumna, o), tocado(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
-atacar(Tablero, NumFila, NumColumna, hundido, Nuevo) :- contenido(Tablero, NumFila, NumColumna, o), not(tocado(Tablero, NumFila, NumColumna)), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, agua, Nuevo) :- agua(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, tocado, Nuevo) :- barco(Tablero, NumFila, NumColumna), tocado(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, hundido, Nuevo) :- barco(Tablero, NumFila, NumColumna), not(tocado(Tablero, NumFila, NumColumna)), golpear(Tablero, NumFila, NumColumna, Nuevo).
 
 %------------------Tests:------------------%
 
