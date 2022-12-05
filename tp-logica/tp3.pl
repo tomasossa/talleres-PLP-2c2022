@@ -57,9 +57,14 @@ puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), Piezas > 1, Faltante
 ubicarBarco(1, _, Tablero, F, C) :- contenido(Tablero, F, C, o).
 ubicarBarco(Piezas, Dir, Tablero, F, C) :- contenido(Tablero, F, C, o), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(Faltantes, Dir, Tablero, FProx, CProx).
 
+%ubicarBarcoEn(+?Tablero, +CantPiezas)
+% ubica un barco de CantPiezas en un tablero parcialmente instanciado.
+% Nota: sin separar este caso, usando puedoColocar se obtienen soluciones repetidas
+ubicarBarcoEn(Tablero, 1) :- disponible(Tablero, F, C), contenido(Tablero, F, C, o).
+ubicarBarcoEn(Tablero, CantPiezas) :- CantPiezas > 1, puedoColocar(CantPiezas, Dir, Tablero, F, C), ubicarBarco(CantPiezas, Dir, Tablero, F, C).
+
 %ubicarBarcos(+Barcos, +?Tablero)
-ubicarBarcos([], _).
-ubicarBarcos([Barco|Barcos], Tablero) :- puedoColocar(Barco, Dir, Tablero, F, C), ubicarBarco(Barco, Dir, Tablero, F, C), ubicarBarcos(Barcos, Tablero).
+ubicarBarcos(Barcos, Tablero) :- maplist(ubicarBarcoEn(Tablero), Barcos).
 
 %completarFilaConAgua(+Fila)
 % Completa la fila con el átomo correspondiente al átomo de agua.
