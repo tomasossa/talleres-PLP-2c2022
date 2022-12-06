@@ -46,6 +46,10 @@ Después
 ```prolog
 % Tablero debe estar instanciado por las restricciones de golpear, que requiere un Tablero instanciado.
 
+atacar(Tablero, NumFila, NumColumna, agua, Nuevo) :- agua(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, tocado, Nuevo) :- barco(Tablero, NumFila, NumColumna), tocado(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
+atacar(Tablero, NumFila, NumColumna, hundido, Nuevo) :- barco(Tablero, NumFila, NumColumna), not(tocado(Tablero, NumFila, NumColumna)), golpear(Tablero, NumFila, NumColumna, Nuevo).
+
 % Como la implementación del predicado golpear soporta que Nuevo sea reversible, y únicamente se usar en este predicado,
 % NuevoTab podría estar instanciado. Entonces, es reversible.
 ```
