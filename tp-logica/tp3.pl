@@ -191,6 +191,7 @@ test(45) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 1, 1, Res, T), [(to
 test(46) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 1, Res, T), [(agua, [[o, o], [~, ~], [~, o]])]).
 test(47) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 2, Res, T), [(hundido, [[o, o], [~, ~], [~, ~]])]).
 test(48) :- setof((F, C), atacar([[o, o], [~, ~], [~, o]], F, C, agua, _), [(2, 1), (2, 2), (3,1)]).
+test(49) :- atacar([[o, o], [~, ~], [~, o]], 3, 2, hundido, [[o, o], [~, ~], [~, ~]]).
 
 
-tests :- forall(between(1,48,N), test(N)).
+tests :- forall(between(1,49,N), test(N)).
