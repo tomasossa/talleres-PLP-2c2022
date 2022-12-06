@@ -44,6 +44,8 @@ golpear(Tablero, NumFila, NumColumna, Nuevo) :- reemplazarEn(NumFila, Tablero, N
 Después
 
 ```prolog
+% Tablero debe estar instanciado por las restricciones de golpear, que requiere un Tablero instanciado.
+
 % Como la implementación del predicado golpear soporta que Nuevo sea reversible, y únicamente se usar en este predicado,
 % NuevoTab podría estar instanciado. Entonces, es reversible.
 ```
