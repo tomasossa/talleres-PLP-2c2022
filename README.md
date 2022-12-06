@@ -47,3 +47,35 @@ Después
 % Como la implementación del predicado golpear soporta que Nuevo sea reversible, y únicamente se usar en este predicado,
 % NuevoTab podría estar instanciado. Entonces, es reversible.
 ```
+
+## Consulta barcos
+
+```prolog
+direccion(horizontal).
+direccion(vertical).
+
+%proxima(+Direccion, +Tablero, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
+% tiene éxito si ProximaFila y ProximaColumna son las posiciones de la próxima celda,
+% en direccion Direccion, desde [Fila,Columna], y están en rango
+proxima(vertical, Tablero, F, C, F1, C) :- F1 is F + 1, enRango(Tablero, F1, C).
+proxima(horizontal, Tablero, F, C, F, C1) :- C1 is C + 1, enRango(Tablero, F, C1).
+
+%puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
+puedoColocar(1, Dir, Tablero, F, C) :- direccion(Dir), disponible(Tablero, F, C).
+puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), Piezas > 1, Faltantes is Piezas - 1, disponible(Tablero, F, C), proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(Faltantes, Dir, Tablero, FProx, CProx).
+
+%ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
+% ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
+% en un tablero parcialmente instanciado. No se verifica que es posible colocar un barco
+ubicarBarco(1, _, Tablero, F, C) :- barco(Tablero, F, C).
+ubicarBarco(Piezas, Dir, Tablero, F, C) :- barco(Tablero, F, C), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(Faltantes, Dir, Tablero, FProx, CProx).
+
+%ubicarBarcoEn(+?Tablero, +CantPiezas)
+% ubica un barco de CantPiezas en un tablero parcialmente instanciado.
+% Nota: sin separar este caso, usando puedoColocar se obtienen soluciones repetidas
+ubicarBarcoEn(Tablero, 1) :- disponible(Tablero, F, C), barco(Tablero, F, C).
+ubicarBarcoEn(Tablero, CantPiezas) :- CantPiezas > 1, puedoColocar(CantPiezas, Dir, Tablero, F, C), ubicarBarco(CantPiezas, Dir, Tablero, F, C).
+
+%ubicarBarcos(+Barcos, +?Tablero)
+ubicarBarcos(Barcos, Tablero) :- maplist(ubicarBarcoEn(Tablero), Barcos).
+```
