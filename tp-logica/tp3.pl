@@ -83,18 +83,18 @@ completarFilaConAgua([Celda|Celdas]) :- var(Celda), Celda = ~, completarFilaConA
 %completarConAgua(+?Tablero)
 completarConAgua(Tablero) :- maplist(completarFilaConAgua, Tablero).
 
-% completarFilaGolpeada(+Tablero, +?Nuevo, +NumFila, +NumColumna)
-% completarFilaGolpeada llena la fila golpeada de Nuevo con contenido de Tablero, teniendo en cuenta
-% que fue golpeado en NumFila, NumColumna
-completarFilaGolpeada(Tablero, Nuevo, NumFila, NumColumna) :- nth1(NumFila, Tablero, FilaGolpeada), nth1(NumFila, Nuevo, FilaGolpeadaNuevo), Col is NumColumna - 1, append(F1, [_|F2], FilaGolpeada), length(F1, Col), append(F1, [~|F2], FilaGolpeadaNuevo).
+%reemplazarEn(+Pos, +XS, ?YS, ?X, ?Y)
+% tiene éxito si XS e YS son dos listas iguales salvo por el elemento
+% en la posición Pos, que será X para el caso de XS e Y para YS.
+% Si X no está instanciada, se instanciará con el elemento en Pos de X.
+% Si YS no está instanciada, se instanciará con una lista igual a XS, salvo en Pos
+% donde tendrá la variable libre Y (en caso de no estar instanciada Y) o el valor de Y.
+reemplazarEn(Pos, XS, YS, X, Y) :- PrimeraMitad is Pos - 1, length(XS1, PrimeraMitad), append(XS1, [X|XS2], XS), append(XS1, [Y|XS2], YS).
 
-% llenarLibresCon(+Tablero, +?Nuevo, +NumFila, +NumColumna)
-% llenarLibresCon llena el nuevo tablero con el contenido de Tablero, teniendo en cuenta
-% que fue golpeado en NumFila, NumColumna
-llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna) :- completarFilaGolpeada(Tablero, Nuevo, NumFila, NumColumna), F is NumFila - 1, append(F1, [_|F2], Tablero), length(F1, F), append(F1, [_|F2], Nuevo).
-
-%golpear(+Tablero, +NumFila, +NumColumna, -NuevoTab)
-golpear(Tablero, NumFila, NumColumna, Nuevo) :- matriz(Tablero, FMax, CMax), matriz(Nuevo, FMax, CMax), agua(Nuevo, NumFila, NumColumna), llenarLibresCon(Tablero, Nuevo, NumFila, NumColumna).
+%golpear(+Tablero, +NumFila, +NumColumna, ?NuevoTab)
+% En esta implementación NuevoTab es reversible: el predicado
+% reemplazarEn lo soporta. Si Nuevo está intanciado, no generará problemas.
+golpear(Tablero, NumFila, NumColumna, Nuevo) :- reemplazarEn(NumFila, Tablero, Nuevo, FilaT, FilaN), reemplazarEn(NumColumna, FilaT, FilaN, _, ~).
 
 
 %tocado(+Tablero, +NumFila, +NumColumna)
@@ -103,12 +103,13 @@ golpear(Tablero, NumFila, NumColumna, Nuevo) :- matriz(Tablero, FMax, CMax), mat
 tocado(Tablero, NumFila, NumColumna) :- adyacenteEnRango(Tablero, NumFila, NumColumna, F, C), barco(Tablero, F, C).
 
 % Completar instanciación soportada y justificar.
-%atacar(+Tablero, ?NumFila, ?NumColumna, ?Resultado, -NuevoTab)
+%atacar(+Tablero, ?NumFila, ?NumColumna, ?Resultado, ?NuevoTab)
 % Tablero debe estar instanciado por las restricciones de golpear, que requiere un Tablero instanciado.
 % NumFila y NumColumna podrían no estar intanciados, porque contenido lo soporta e instancia fila y columna en caso de no estarlo.
 % Como es lo primero que se consulta en cada caso, no habría error con los próximos predicados.
 % Resultado podría estar instanciado: como atacar está definido por casos en Resultado, se unificará con el átomo correspondiente, sin errores.
-% NuevoTab no puede estar instanciado por las restricciones del predicado golpear
+% Como la implementación del predicado golpear soporta que Nuevo sea reversible, y únicamente se usar en este predicado,
+% NuevoTab podría estar instanciado. Entonces, es reversible.
 atacar(Tablero, NumFila, NumColumna, agua, Nuevo) :- agua(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
 atacar(Tablero, NumFila, NumColumna, tocado, Nuevo) :- barco(Tablero, NumFila, NumColumna), tocado(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
 atacar(Tablero, NumFila, NumColumna, hundido, Nuevo) :- barco(Tablero, NumFila, NumColumna), not(tocado(Tablero, NumFila, NumColumna)), golpear(Tablero, NumFila, NumColumna, Nuevo).
@@ -182,12 +183,14 @@ test(40) :- bagof(X, (T = [[o, o], [~, X], [~, o]], completarConAgua(T)), [~]).
 % Tests golpear
 test(41) :- golpear([[o, o], [~, ~], [~, o]], 2, 2, M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorAgua(M, 2, 1), ocupadaPorAgua(M, 2, 2), ocupadaPorAgua(M, 3, 1), ocupadaPorBarco(M, 3, 2).
 test(42) :- golpear([[o, o], [~, ~], [~, o]], 1, 2, M), ocupadaPorBarco(M, 1, 1), ocupadaPorAgua(M, 1, 2), ocupadaPorAgua(M, 2, 1), ocupadaPorAgua(M, 2, 2), ocupadaPorAgua(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+test(43) :- golpear([[o, o], [~, ~], [~, o]], 3, 2, [[o, o], [~, ~], [~, ~]]).
+test(44) :- not(golpear([[o, o], [~, ~], [~, o]], 3, 2, [[o, o], [~, ~], [~, o]])).
 
 % Tests atacar
-test(43) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 1, 1, Res, T), [(tocado, [[~, o], [~, ~], [~, o]])]).
-test(44) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 1, Res, T), [(agua, [[o, o], [~, ~], [~, o]])]).
-test(45) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 2, Res, T), [(hundido, [[o, o], [~, ~], [~, ~]])]).
-test(46) :- setof((F, C), atacar([[o, o], [~, ~], [~, o]], F, C, agua, _), [(2, 1), (2, 2), (3,1)]).
+test(45) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 1, 1, Res, T), [(tocado, [[~, o], [~, ~], [~, o]])]).
+test(46) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 1, Res, T), [(agua, [[o, o], [~, ~], [~, o]])]).
+test(47) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 2, Res, T), [(hundido, [[o, o], [~, ~], [~, ~]])]).
+test(48) :- setof((F, C), atacar([[o, o], [~, ~], [~, o]], F, C, agua, _), [(2, 1), (2, 2), (3,1)]).
 
 
-tests :- forall(between(1,46,N), test(N)).
+tests :- forall(between(1,48,N), test(N)).
