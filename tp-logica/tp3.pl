@@ -92,6 +92,7 @@ reemplazarEn(Pos, XS, YS, X, Y) :- PrimeraMitad is Pos - 1, length(XS1, PrimeraM
 %golpear(+Tablero, +NumFila, +NumColumna, ?NuevoTab)
 % En esta implementación NuevoTab es reversible: el predicado
 % reemplazarEn lo soporta. Si Nuevo está intanciado, no generará problemas.
+% Nota: ver tests 41 y 42
 golpear(Tablero, NumFila, NumColumna, Nuevo) :- reemplazarEn(NumFila, Tablero, Nuevo, FilaT, FilaN), reemplazarEn(NumColumna, FilaT, FilaN, _, ~).
 
 
