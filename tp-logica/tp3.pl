@@ -49,27 +49,25 @@ disponible(Tablero, F, C) :- disponibleCelda(Tablero, F, C), not(algunaAdyacente
 direccion(horizontal).
 direccion(vertical).
 
-%proxima(+Direccion, +Tablero, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
-% tiene éxito si ProximaFila y ProximaColumna son las posiciones de la próxima celda,
-% en direccion Direccion, desde [Fila,Columna], y están en rango
-proxima(vertical, Tablero, F, C, F1, C) :- F1 is F + 1, enRango(Tablero, F1, C).
-proxima(horizontal, Tablero, F, C, F, C1) :- C1 is C + 1, enRango(Tablero, F, C1).
+%saltarA(+Direccion, +Salto, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
+% tiene éxito si ProximaFila y ProximaColumna son las posiciones de la celda desde (Fila,Columna),
+% en la dirección Direccion con un salto de Salto
+saltarA(vertical, Salto, F, C, F1, C) :- F1 is F + Salto.
+saltarA(horizontal, Salto, F, C, F, C1) :- C1 is C + Salto.
+
+%saltos(+Piezas, +Direccion, +Fila, +Columna, ?ProximaFila, ?ProximaColumna)
+% instancia en ProximaFila y ProximaColumna todas las posiciones que cubriría
+% un barco de Piezas, en la dirección Direccion, empezando en (Fila, Columna)
+saltos(Piezas, Dir, F, C, FProx, CProx) :- Saltos is Piezas - 1, between(0, Saltos, Salto), saltarA(Dir, Salto, F, C, FProx, CProx).
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
-puedoColocar(1, Dir, Tablero, F, C) :- direccion(Dir), disponible(Tablero, F, C).
-puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), disponible(Tablero, F, C), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(Faltantes, Dir, Tablero, FProx, CProx).
+puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), disponible(Tablero, F, C), forall(saltos(Piezas, Dir, F, C, FProx, CProx), disponible(Tablero, FProx, CProx)).
 
-%ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
-% ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
-% en un tablero parcialmente instanciado. No se verifica que es posible colocar un barco
-ubicarBarco(1, _, Tablero, F, C) :- barco(Tablero, F, C).
-ubicarBarco(Piezas, Dir, Tablero, F, C) :- barco(Tablero, F, C), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), ubicarBarco(Faltantes, Dir, Tablero, FProx, CProx).
-
-%ubicarBarcoEn(+?Tablero, +CantPiezas)
-% ubica un barco de CantPiezas en un tablero parcialmente instanciado.
-% Nota: sin separar este caso, usando puedoColocar se obtienen soluciones repetidas
+%ubicarBarcoEn(+?Tablero, +Piezas)
+% ubica un barco de Piezas en un tablero parcialmente instanciado.
+% Nota: sin separar el caso Piezas = 1, usando puedoColocar se obtienen soluciones repetidas
 ubicarBarcoEn(Tablero, 1) :- disponible(Tablero, F, C), barco(Tablero, F, C).
-ubicarBarcoEn(Tablero, CantPiezas) :- CantPiezas > 1, puedoColocar(CantPiezas, Dir, Tablero, F, C), ubicarBarco(CantPiezas, Dir, Tablero, F, C).
+ubicarBarcoEn(Tablero, Piezas) :- Piezas > 1, puedoColocar(Piezas, Dir, Tablero, F, C), foreach(saltos(Piezas, Dir, F, C, FProx, CProx), barco(Tablero, FProx, CProx)).
 
 %ubicarBarcos(+Barcos, +?Tablero)
 ubicarBarcos(Barcos, Tablero) :- maplist(ubicarBarcoEn(Tablero), Barcos).
@@ -153,10 +151,10 @@ test(17) :- matriz(M,3,3), disponible(M, 2, 2).
 test(18) :- setof((F, C), (matriz(M,2,2), disponible(M, F, C)), [(1,1), (1,2), (2,1), (2,2)]).
 
 % Tests puedoColocar
-test(19) :- matriz(M,3,3), proxima(vertical, M, 1, 1, F, C), F is 2, C is 1.
-test(20) :- matriz(M,3,3), proxima(horizontal, M, 2, 2, F, C), F is 2, C is 3.
-test(21) :- matriz(M,3,3), not(proxima(horizontal, M, 3, 3, _, _)).
-test(22) :- matriz(M,3,3), not(proxima(vertical, M, 3, 3, _, _)).
+test(19) :- saltarA(vertical, 1, 2, 2, F, C), F is 3, C is 2.
+test(20) :- saltarA(horizontal, 2, 1, 1, F, C), F is 1, C is 3.
+test(21) :- setof((F, C), saltos(2, vertical, 3, 4, F, C), [(3,4), (4,4)]).
+test(22) :- setof((F, C), saltos(1, horizontal, 2, 5, F, C), [(2,5)]).
 
 test(23) :- matriz(M,3,3), puedoColocar(1, horizontal, M, 1, 1).
 test(24) :- matriz(M,3,3), puedoColocar(2, horizontal, M, 2, 2).
@@ -171,31 +169,28 @@ test(30) :- matriz(M,3,3), contenido(M, 1, 1, o), ocupadaPor(M, 1, 1, o).
 test(31) :- matriz(M,3,3), contenido(M, 1, 1, o), not(ocupadaPor(M, 1, 1, x)).
 test(32) :- matriz(M,3,3), not(ocupadaPor(M, 1, 1, o)).
 
-test(33) :- matriz(M,3,3), ubicarBarco(2, vertical, M, 1, 1), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 2, 1).
-test(34) :- matriz(M,2,4), ubicarBarco(3, horizontal, M, 2, 2), ocupadaPorBarco(M, 2, 2), ocupadaPorBarco(M, 2, 3), ocupadaPorBarco(M, 2, 4).
-
-test(35) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1).
-test(36) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 2).
-test(37) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
-test(38) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+test(33) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1).
+test(34) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 2).
+test(35) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+test(36) :- matriz(M,3,2), ubicarBarcos([2,1],M), ocupadaPorBarco(M, 1, 2), ocupadaPorBarco(M, 3, 1), ocupadaPorBarco(M, 3, 2).
 
 % Tests completarConAgua
-test(39) :- T = [[o, o], [_, _], [_, o]], completarConAgua(T), ocupadaPorAgua(T, 2, 1), ocupadaPorAgua(T, 2, 2), ocupadaPorAgua(T, 3, 1).
+test(37) :- T = [[o, o], [_, _], [_, o]], completarConAgua(T), ocupadaPorAgua(T, 2, 1), ocupadaPorAgua(T, 2, 2), ocupadaPorAgua(T, 3, 1).
 % para testear que no haya repetidos:
-test(40) :- bagof(X, (T = [[o, o], [~, X], [~, o]], completarConAgua(T)), [~]).
+test(38) :- bagof(X, (T = [[o, o], [~, X], [~, o]], completarConAgua(T)), [~]).
 
 % Tests golpear
-test(41) :- golpear([[o, o], [~, ~], [~, o]], 2, 2, M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorAgua(M, 2, 1), ocupadaPorAgua(M, 2, 2), ocupadaPorAgua(M, 3, 1), ocupadaPorBarco(M, 3, 2).
-test(42) :- golpear([[o, o], [~, ~], [~, o]], 1, 2, M), ocupadaPorBarco(M, 1, 1), ocupadaPorAgua(M, 1, 2), ocupadaPorAgua(M, 2, 1), ocupadaPorAgua(M, 2, 2), ocupadaPorAgua(M, 3, 1), ocupadaPorBarco(M, 3, 2).
-test(43) :- golpear([[o, o], [~, ~], [~, o]], 3, 2, [[o, o], [~, ~], [~, ~]]).
-test(44) :- not(golpear([[o, o], [~, ~], [~, o]], 3, 2, [[o, o], [~, ~], [~, o]])).
+test(39) :- golpear([[o, o], [~, ~], [~, o]], 2, 2, M), ocupadaPorBarco(M, 1, 1), ocupadaPorBarco(M, 1, 2), ocupadaPorAgua(M, 2, 1), ocupadaPorAgua(M, 2, 2), ocupadaPorAgua(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+test(40) :- golpear([[o, o], [~, ~], [~, o]], 1, 2, M), ocupadaPorBarco(M, 1, 1), ocupadaPorAgua(M, 1, 2), ocupadaPorAgua(M, 2, 1), ocupadaPorAgua(M, 2, 2), ocupadaPorAgua(M, 3, 1), ocupadaPorBarco(M, 3, 2).
+test(41) :- golpear([[o, o], [~, ~], [~, o]], 3, 2, [[o, o], [~, ~], [~, ~]]).
+test(42) :- not(golpear([[o, o], [~, ~], [~, o]], 3, 2, [[o, o], [~, ~], [~, o]])).
 
 % Tests atacar
-test(45) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 1, 1, Res, T), [(tocado, [[~, o], [~, ~], [~, o]])]).
-test(46) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 1, Res, T), [(agua, [[o, o], [~, ~], [~, o]])]).
-test(47) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 2, Res, T), [(hundido, [[o, o], [~, ~], [~, ~]])]).
-test(48) :- setof((F, C), atacar([[o, o], [~, ~], [~, o]], F, C, agua, _), [(2, 1), (2, 2), (3,1)]).
-test(49) :- atacar([[o, o], [~, ~], [~, o]], 3, 2, hundido, [[o, o], [~, ~], [~, ~]]).
+test(43) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 1, 1, Res, T), [(tocado, [[~, o], [~, ~], [~, o]])]).
+test(44) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 1, Res, T), [(agua, [[o, o], [~, ~], [~, o]])]).
+test(45) :- setof((Res, T), atacar([[o, o], [~, ~], [~, o]], 3, 2, Res, T), [(hundido, [[o, o], [~, ~], [~, ~]])]).
+test(46) :- setof((F, C), atacar([[o, o], [~, ~], [~, o]], F, C, agua, _), [(2, 1), (2, 2), (3,1)]).
+test(47) :- atacar([[o, o], [~, ~], [~, o]], 3, 2, hundido, [[o, o], [~, ~], [~, ~]]).
 
 
-tests :- forall(between(1,49,N), test(N)).
+tests :- forall(between(1,47,N), test(N)).
