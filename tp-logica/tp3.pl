@@ -104,12 +104,16 @@ tocado(Tablero, NumFila, NumColumna) :- adyacenteEnRango(Tablero, NumFila, NumCo
 
 % Completar instanciación soportada y justificar.
 %atacar(+Tablero, ?NumFila, ?NumColumna, ?Resultado, ?NuevoTab)
-% Tablero debe estar instanciado por las restricciones de golpear, que requiere un Tablero instanciado.
-% NumFila y NumColumna podrían no estar intanciados, porque contenido lo soporta e instancia fila y columna en caso de no estarlo.
+% NumFila y NumColumna podrían no estar intanciados, porque contenido (usando en 'agua' y 'barco') lo soporta e instancia fila y columna en caso de no estarlo.
 % Como es lo primero que se consulta en cada caso, no habría error con los próximos predicados.
 % Resultado podría estar instanciado: como atacar está definido por casos en Resultado, se unificará con el átomo correspondiente, sin errores.
 % Como la implementación del predicado golpear soporta que Nuevo sea reversible, y únicamente se usar en este predicado,
 % NuevoTab podría estar instanciado. Entonces, es reversible.
+% Tablero debe estar instanciado: si no lo estuviera es posible que algunas consultas no terminen.
+% Por ejemplo, probar 'atacar(T, F, C, R, [[o, o], [~, ~]]).'. Prolog entrará por el primer caso, Resultado = agua. El predicado agua
+% generará infinitos tableros con un átomo de agua y al seguir con el predicado golpear siempre se obtendrá falso. De esta forma, el 
+% predicado agua seguirá generando tableros que nunca cumplirán con golpear, sin parar.
+% Entonces, Tablero debe estar instanciado.
 atacar(Tablero, NumFila, NumColumna, agua, Nuevo) :- agua(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
 atacar(Tablero, NumFila, NumColumna, tocado, Nuevo) :- barco(Tablero, NumFila, NumColumna), tocado(Tablero, NumFila, NumColumna), golpear(Tablero, NumFila, NumColumna, Nuevo).
 atacar(Tablero, NumFila, NumColumna, hundido, Nuevo) :- barco(Tablero, NumFila, NumColumna), not(tocado(Tablero, NumFila, NumColumna)), golpear(Tablero, NumFila, NumColumna, Nuevo).
