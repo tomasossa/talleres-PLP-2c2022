@@ -57,7 +57,7 @@ proxima(horizontal, Tablero, F, C, F, C1) :- C1 is C + 1, enRango(Tablero, F, C1
 
 %puedoColocar(+CantPiezas, ?Direccion, +Tablero, ?Fila, ?Columna)
 puedoColocar(1, Dir, Tablero, F, C) :- direccion(Dir), disponible(Tablero, F, C).
-puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), Piezas > 1, Faltantes is Piezas - 1, disponible(Tablero, F, C), proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(Faltantes, Dir, Tablero, FProx, CProx).
+puedoColocar(Piezas, Dir, Tablero, F, C) :- direccion(Dir), disponible(Tablero, F, C), Piezas > 1, Faltantes is Piezas - 1, proxima(Dir, Tablero, F, C, FProx, CProx), puedoColocar(Faltantes, Dir, Tablero, FProx, CProx).
 
 %ubicarBarco(+CantPiezas, +Direccion, +?Tablero, +Fila, +Columna)
 % ubicarBarco ubica un barco de CantPiezas, dadas una dirección, una fila y una columna,
